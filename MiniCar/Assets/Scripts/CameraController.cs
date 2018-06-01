@@ -33,6 +33,7 @@ public class CameraController : MonoBehaviour {
     {
         FollowTarget();
         LookAtTarget();
+        AdjustOffset();
     }
 
 
@@ -54,7 +55,7 @@ public class CameraController : MonoBehaviour {
     private void AdjustOffset()
     {
         
-        m_horizontal.transform.position = transform.position + new Vector3( 0f, 0f, offset.z );
-        m_vertical.transform.position = m_horizontal.transform.position + new Vector3( 0f, offset.y, 0f );
+        m_horizontal.transform.position = transform.position + transform.forward * offset.z;
+        m_vertical.transform.position = m_horizontal.transform.position + m_horizontal.transform.up * offset.y;
     }
 }
