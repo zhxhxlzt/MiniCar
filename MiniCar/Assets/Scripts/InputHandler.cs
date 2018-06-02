@@ -9,10 +9,6 @@ public class InputHandler : MonoBehaviour {
     [SerializeField] private float accel = 0f;    //加减速，倒车;  数值范围[-1，1]
     [SerializeField] private float steer = 0f;    //转向;  数值范围[-1, 1]
     [SerializeField] private float brake = 0f;    //刹车;  数值范围[0, 1]
-    public bool jump;
-    public bool forwardDash;
-    public bool leftDash;
-    public bool rightDash;
 
     //外部获取移动参数
     public float Accel { get { return accel; } }
@@ -38,23 +34,6 @@ public class InputHandler : MonoBehaviour {
         accel = Input.GetAxis( "Vertical" );
         steer = Input.GetAxis( "Horizontal" );
         brake = Input.GetAxis( "Jump" );
-        if(Input.GetKeyDown( "r" ))
-        {
-            jump = true;
-        }
-
-        if(Input.GetKeyDown("left shift"))
-        {
-            forwardDash = true;
-        }
-        if(Input.GetKeyDown("q"))
-        {
-            leftDash = true;
-        }
-        if(Input.GetKeyDown("e"))
-        {
-            rightDash = true;
-        }
     }
     
 
