@@ -48,14 +48,19 @@ public class CarController : MonoBehaviour {
         }
 
         float motorTorque = m_maxMotorTorque / 4;   //各车轮动力扭矩
-        float brakeTorque = m_maxBrakeTorque / 4;   //各车轮制动扭矩
+        float brakeTorque = m_maxBrakeTorque / 2;   //各车轮制动扭矩
 
         for( int i = 0; i < wheelColliders.Length; i++ )
         {
             wheelColliders[i].motorTorque = motorTorque * m_inputHandler.Accel; //动力
-            wheelColliders[i].brakeTorque = brakeTorque * m_inputHandler.Brake; //刹车
+            
         }
 
+        for( int i = 2; i < 4; i++ )
+        {
+            wheelColliders[i].brakeTorque = brakeTorque * m_inputHandler.Brake; //刹车
+        }
+        
         for( int i = 0; i < 2; i++ )
         {
             wheelColliders[i].steerAngle = m_maxSteer * m_inputHandler.Steer;   //转向
