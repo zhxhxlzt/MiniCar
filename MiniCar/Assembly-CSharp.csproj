@@ -63,6 +63,10 @@
     <Compile Include="Assets\Scripts\CarController.cs" />
     <Compile Include="Assets\Scripts\InputHandler.cs" />
     <Compile Include="Assets\Scripts\SceneController.cs" />
+    <Compile Include="Assets\Scripts\Scriptable\CoverPart.cs" />
+    <Compile Include="Assets\Scripts\Scriptable\MotorPart.cs" />
+    <Compile Include="Assets\Scripts\Scriptable\UserCarParts.cs" />
+    <Compile Include="Assets\Scripts\Scriptable\WheelPart.cs" />
     <Reference Include="UnityEditor.StandardEvents">
       <HintPath>E:/GitHub/MiniCar/MiniCar/Library/ScriptAssemblies/UnityEditor.StandardEvents.dll</HintPath>
     </Reference>
