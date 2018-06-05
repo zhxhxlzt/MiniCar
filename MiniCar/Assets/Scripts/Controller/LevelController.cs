@@ -93,7 +93,7 @@ public class LevelController : MonoBehaviour {
     {
         if( m_challengeState == ChallengeState.underway )
         {
-            Time.timeScale = 0.1f;
+            Time.timeScale = 0f;
             m_challengeState = ChallengeState.paused;
         }
         else if( m_challengeState == ChallengeState.paused )

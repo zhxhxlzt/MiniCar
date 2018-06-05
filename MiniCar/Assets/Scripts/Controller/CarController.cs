@@ -127,13 +127,13 @@ public class CarController : MonoBehaviour {
             }
         }
         
-        // this if is needed to avoid gimbal lock problems that will make the car suddenly shift direction
         if ( Mathf.Abs( m_OldRotation - transform.eulerAngles.y ) < 10f )
         {
-            var turnadjust = (transform.eulerAngles.y - m_OldRotation) * m_steerHelper;
-            Quaternion velRotation = Quaternion.AngleAxis( turnadjust, Vector3.up );
+            var turnAdjust = (transform.eulerAngles.y - m_OldRotation) * m_steerHelper;
+            Quaternion velRotation = Quaternion.AngleAxis( turnAdjust, Vector3.up );
             m_carRigidbody.velocity = velRotation * m_carRigidbody.velocity;
         }
+
         m_OldRotation = transform.eulerAngles.y;
     }
 
