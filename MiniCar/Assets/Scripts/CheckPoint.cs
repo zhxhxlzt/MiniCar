@@ -26,9 +26,9 @@ public class CheckPoint : MonoBehaviour {
         for( int i = 0; i < 5; i++ )
         {
             yield return new WaitForSeconds( 0.5f );    //每隔0.5秒闪烁一次
-            Result.gameObject.SetActive( true );
+            Result.enabled = true;
             yield return new WaitForSeconds( 0.5f );
-            Result.gameObject.SetActive( false );
+            Result.enabled = false;
         }
     }
 

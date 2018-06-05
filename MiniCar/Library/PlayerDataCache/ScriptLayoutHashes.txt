@@ -1,10 +1,12 @@
 WindowsStandalone
 PlayerPath?
-E:/GitHub/MiniCar/MiniCar/ExecutableGame/第四次迭代/第四次迭代.exe
+E:/GitHub/MiniCar/MiniCar/ExecutableGame/第五次迭代/第五次迭代.exe
 SceneListBegin?
 Assets/Scenes/MainScene.unity
-Assets/Scenes/CarTest.unity
+Assets/Scenes/Start_0.unity
+Assets/Scenes/Level_1_1.unity
 SceneListEnd?
+b7232cd9242d47da7033a530763cd3fe Assembly-CSharp.dll:.UserData
 05524b8f659e7bfe5756d1335fec24ba UnityEngine.Timeline.dll:UnityEngine.Timeline.ActivationPlayableAsset
 cf455f7a806648c6ed4c7d3e3f8a0e03 UnityEngine.Timeline.dll:UnityEngine.Timeline.ActivationTrack
 13bdb7c23815c33a33b37b0ba8dd39be UnityEngine.Timeline.dll:UnityEngine.Timeline.AnimationPlayableAsset
@@ -17,7 +19,9 @@ ff05dcdf90651c3d98a9cad3df5e471e UnityEngine.Timeline.dll:UnityEngine.Timeline.C
 30afa8783a8bbee2e465ec9ce1efaee2 UnityEngine.Timeline.dll:UnityEngine.Timeline.GroupTrack
 30afa8783a8bbee2e465ec9ce1efaee2 UnityEngine.Timeline.dll:UnityEngine.Timeline.PlayableTrack
 607d64d2c4bc76ac9876e6f7b9cc7edf UnityEngine.Timeline.dll:UnityEngine.Timeline.TimelineAsset
-05524b8f659e7bfe5756d1335fec24ba Assembly-CSharp.dll:.SceneController
+39e93dacb1e8934cd4fc07ae21f6d476 Assembly-CSharp.dll:.UIController
+8cb5d347da56c0b29289ec5ee76c8a41 Assembly-CSharp.dll:.LevelInfo
+be3c7e1564b3fa2835d2ffd1c2fec012 Assembly-CSharp.dll:.SceneController
 a35dc9cca2faebc5f5f1aeb9e8e47bbe UnityEngine.UI.dll:UnityEngine.UI.AspectRatioFitter
 05524b8f659e7bfe5756d1335fec24ba UnityEngine.UI.dll:UnityEngine.EventSystems.BaseInput
 49cd62a578efc0a599b810a2b66cd49c UnityEngine.UI.dll:UnityEngine.UI.Button
@@ -94,6 +98,7 @@ ff05dcdf90651c3d98a9cad3df5e471e UnityEngine.Timeline.dll:UnityEngine.Timeline.C
 30afa8783a8bbee2e465ec9ce1efaee2 UnityEngine.Timeline.dll:UnityEngine.Timeline.GroupTrack
 30afa8783a8bbee2e465ec9ce1efaee2 UnityEngine.Timeline.dll:UnityEngine.Timeline.PlayableTrack
 607d64d2c4bc76ac9876e6f7b9cc7edf UnityEngine.Timeline.dll:UnityEngine.Timeline.TimelineAsset
+4a302f79a6040e498d6f7012d82a1f59 Assembly-CSharp.dll:.LevelSlot
 fc1e0f4d8439d9928083474691511a13 UnityEngine.Networking.dll:UnityEngine.Networking.NetworkAnimator
 05524b8f659e7bfe5756d1335fec24ba UnityEngine.Networking.dll:UnityEngine.Networking.NetworkBehaviour
 60b2bb652410a5867a5ab9a01cd38461 UnityEngine.Networking.dll:UnityEngine.Networking.NetworkDiscovery
@@ -109,6 +114,7 @@ e9bdabf9265d758d56f01bb188916fa8 UnityEngine.Networking.dll:UnityEngine.Networki
 73843688b51256aed059f049c540bca8 UnityEngine.Networking.dll:UnityEngine.Networking.NetworkTransformChild
 528ea1fd7c01796fc60c4e2f172ea229 UnityEngine.Networking.dll:UnityEngine.Networking.NetworkTransformVisualizer
 9de3a22eca9aefadba2d10d5987cefe3 UnityEngine.SpatialTracking.dll:UnityEngine.SpatialTracking.TrackedPoseDriver
+02b1d7d0086a529374716addab7a109a Assembly-CSharp.dll:.LevelInfoList
 322cb40e1e282f28af980cbef7922a90 UnityEngine.Analytics.dll:UnityEngine.Analytics.AnalyticsEventTracker
 dc07d7ad69b399a46e92c483bf1c04ca UnityEngine.Analytics.dll:UnityEngine.Analytics.AnalyticsTracker
 bc68edb0af574bf79f9550ead8ebae5c UnityEngine.HoloLens.dll:UnityEngine.Audio.AudioSpatializerMicrosoft
@@ -117,7 +123,7 @@ bc68edb0af574bf79f9550ead8ebae5c UnityEngine.HoloLens.dll:UnityEngine.Audio.Audi
 c2275a8bfbb9f9942cad75ecdfded41d UnityEngine.HoloLens.dll:UnityEngine.XR.WSA.SpatialMappingCollider
 45f3431f0103c41611e8d4eec3d439df UnityEngine.HoloLens.dll:UnityEngine.XR.WSA.SpatialMappingRenderer
 3173c4cf336c8b4d2ac0f2f04fbc748a Assembly-CSharp.dll:.MotorPart
-5878b42f6def3959eeae70ffc3e78a12 Assembly-CSharp.dll:.LevelController
+652112f191549c881b5c74c0c4e27b28 Assembly-CSharp.dll:.ChallengeController
 5f4753e41f01e8663f4109e4ac8ac87f Assembly-CSharp.dll:.CoverPart
 fc1e0f4d8439d9928083474691511a13 UnityEngine.Networking.dll:UnityEngine.Networking.NetworkAnimator
 05524b8f659e7bfe5756d1335fec24ba UnityEngine.Networking.dll:UnityEngine.Networking.NetworkBehaviour
@@ -152,7 +158,8 @@ bc68edb0af574bf79f9550ead8ebae5c UnityEngine.HoloLens.dll:UnityEngine.Audio.Audi
 c2275a8bfbb9f9942cad75ecdfded41d UnityEngine.HoloLens.dll:UnityEngine.XR.WSA.SpatialMappingCollider
 45f3431f0103c41611e8d4eec3d439df UnityEngine.HoloLens.dll:UnityEngine.XR.WSA.SpatialMappingRenderer
 9de3a22eca9aefadba2d10d5987cefe3 UnityEngine.SpatialTracking.dll:UnityEngine.SpatialTracking.TrackedPoseDriver
-9757b25bcd335bfa2f89734fd8583035 Assembly-CSharp.dll:.UserCarParts
+d317f1c0271d617fe523d93edcdf3cfb Assembly-CSharp.dll:.UserCarParts
 ca5b393540c3f64289968c971012dd13 Assembly-CSharp.dll:.InputHandler
+88f0511c6a7280fd3730cac708be638a Assembly-CSharp.dll:.LevelManager
 564beab49962b63bd1625d9a781ea400 Assembly-CSharp.dll:.CheckPoint
-fd3c04e79c084cc062bb0b0c37b76942 Assembly-CSharp.dll:.CarController
+a428b03dfcc2b87d5fda7fa789bcdf9e Assembly-CSharp.dll:.CarController

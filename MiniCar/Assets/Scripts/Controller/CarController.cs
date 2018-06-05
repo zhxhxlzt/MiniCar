@@ -7,7 +7,7 @@ public class CarController : MonoBehaviour {
 
     [Header( "=== 外部控制器 ===" )]
     [SerializeField] private InputHandler m_inputHandler;    //输入控制器
-    [SerializeField] public UserCarParts m_userCarParts;
+    [SerializeField] public UserCarParts m_currentCar;       //当前赛车配置
     [SerializeField] private Rigidbody m_carRigidbody;
 
     [Header( "=== 车轮模型 ===" )]
@@ -31,7 +31,7 @@ public class CarController : MonoBehaviour {
     [Header("=== 赛车状态 ===")]
     public bool Driveable = true;       //是否处于驾驶状态
     //[SerializeField] private bool m_isOnGround = true;      //是否着地
-    [SerializeField] [Range(0,1)]private float m_steerHelper;
+    [SerializeField] [Range(0,1)]private float m_steerHelper;   //转向帮助
     public Vector3 Velocity { get { return m_carRigidbody.velocity; } }
 
     [Header( "=== 测试变量 ===" )]
@@ -46,37 +46,37 @@ public class CarController : MonoBehaviour {
     private void Start()
     {
         m_inputHandler = GameObject.FindGameObjectWithTag( "GameController" ).GetComponent<InputHandler>(); //获取输入组件
-        m_userCarParts = Resources.Load<UserCarParts>( "UserDatum/userParts" );
-        InitCarAttribute();     //初始化赛车属性
+        m_currentCar = Resources.Load<UserData>( "UserDatum/UserData" ).currentCar;
+        AdjustCarAttribute();     //初始化赛车属性
     }
 
     private void FixedUpdate()
     {
-        InitCarAttribute();
-        ForceAdjust();
+        AdjustCarAttribute();     
+        AdjustForce();
         DriveControl();
         SteerHelper();
         SyncWheels();
     }
 
-    private void InitCarAttribute()
+    private void AdjustCarAttribute()
     {
-        if ( m_userCarParts == null )
+        if ( m_currentCar == null )
         {
-            m_userCarParts = FindObjectOfType<UserCarParts>();
-            if ( m_userCarParts == null )
+            m_currentCar = FindObjectOfType<UserCarParts>();
+            if ( m_currentCar == null )
             {
                 Debug.Log( "userParts Not exists" );
                 return;
             }
         }
 
-        m_maxSpeed = (2f * Mathf.PI * wheelColliders[0].radius) * m_userCarParts.motor.RPM / 60f;   //最大速度(m/s) = 车轮周长 * rpm / 60
-        m_maxMotorTorque = m_userCarParts.motor.MotorTorque;    //最大动力扭矩为马达零件扭矩
-        m_maxBrakeTorque = m_userCarParts.wheel.BrakeTorque;    //最大刹车扭矩为车轮零件刹车扭矩
-        m_wheelFriction = m_userCarParts.wheel.Friction;        //车轮摩擦力
-        m_airDrag = m_userCarParts.cover.AirDrag;               //空气阻力
-        m_downForce = m_userCarParts.cover.DownForce;           //下压力
+        m_maxSpeed = (2f * Mathf.PI * wheelColliders[0].radius) * m_currentCar.motor.RPM / 60f;   //最大速度(m/s) = 车轮周长 * rpm / 60
+        m_maxMotorTorque = m_currentCar.motor.MotorTorque;    //最大动力扭矩为马达零件扭矩
+        m_maxBrakeTorque = m_currentCar.wheel.BrakeTorque;    //最大刹车扭矩为车轮零件刹车扭矩
+        m_wheelFriction = m_currentCar.wheel.Friction;        //车轮摩擦力
+        m_airDrag = m_currentCar.cover.AirDrag;               //空气阻力
+        m_downForce = m_currentCar.cover.DownForce;           //下压力
     }
 
     private void DriveControl()
@@ -137,7 +137,7 @@ public class CarController : MonoBehaviour {
         m_OldRotation = transform.eulerAngles.y;
     }
 
-    private void ForceAdjust()
+    private void AdjustForce()
     {
         //调整下压力
         m_carRigidbody.AddForce( -m_downForce * transform.up);         //下压力方向为赛车下方

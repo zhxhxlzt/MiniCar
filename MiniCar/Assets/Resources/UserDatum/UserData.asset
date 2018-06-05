@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f259e730d43c96f4295093cd22f6b99c, type: 3}
+  m_Name: UserData
+  m_EditorClassIdentifier: 
+  coverList:
+  - {fileID: 11400000, guid: 9fd751491d6c8534b96a069508caf904, type: 2}
+  motorList:
+  - {fileID: 11400000, guid: 678c3451d212bb24182e83f1015c7fd9, type: 2}
+  wheelList:
+  - {fileID: 11400000, guid: ae723bcbe2a72fe4eaa44675998e6c72, type: 2}
+  levelInfoList: {fileID: 11400000, guid: 611384128bec17c468ed6622fb27a607, type: 2}
+  currentCar: {fileID: 11400000, guid: 577c3d4171ea97b4f833d6a488f54a13, type: 2}

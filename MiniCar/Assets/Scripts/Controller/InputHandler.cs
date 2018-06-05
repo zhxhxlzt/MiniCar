@@ -38,5 +38,4 @@ public class InputHandler : MonoBehaviour {
         steer = Input.GetAxis( "Horizontal" );
         brake = Input.GetAxis( "Jump" );
     }
-    
 }

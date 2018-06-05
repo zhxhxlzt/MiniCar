@@ -5,24 +5,40 @@ using UnityEngine.SceneManagement;
 
 public class SceneController : MonoBehaviour {
 
-    //公有场景切换方法
+    public UserData userData;   //用户数据
+
+    private void Start()
+    {
+        userData = Resources.Load<UserData>( "UserDatum/UserData" );
+    }
+
+    //载入场景
     public void LoadScene(string sceneName)
     {
-        StartCoroutine( SwitchScene( sceneName ) );
+        SceneManager.LoadScene( sceneName );
     }
 
-    //场景更换方法
-    private IEnumerator SwitchScene(string sceneName)
+    //获取当前场景名
+    public string CurrentSceneName
     {
-        yield return SceneManager.UnloadSceneAsync( SceneManager.GetActiveScene().buildIndex ); //载出当前场景
-        yield return StartCoroutine( LoadSceneAndSetActive( sceneName ) ); //载入新场景并激活
+        get { return SceneManager.GetActiveScene().name; }
     }
 
-    //场景载入方法
-    private IEnumerator LoadSceneAndSetActive(string sceneName)
+    //开始新游戏
+    public void StartNewGame()
     {
-        yield return SceneManager.LoadSceneAsync( sceneName, LoadSceneMode.Single );
-        Scene newlyLoadedScene = SceneManager.GetSceneAt( SceneManager.sceneCount - 1 );
-        SceneManager.SetActiveScene( newlyLoadedScene );
+        userData.Reset();
+    }
+
+    //游戏退出方法
+    public void QuitGame()
+    {
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+
+#else
+        Application.Quit();
+
+#endif
     }
 }
