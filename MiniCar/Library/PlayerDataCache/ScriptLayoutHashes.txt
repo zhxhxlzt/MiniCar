@@ -1,10 +1,13 @@
 WindowsStandalone
 PlayerPath?
-E:/GitHub/MiniCar/MiniCar/ExecutableGame/第五次迭代/第五次迭代.exe
+E:/GitHub/MiniCar/MiniCar/ExecutableGame/第六次迭代/第六次迭代.exe
 SceneListBegin?
 Assets/Scenes/MainScene.unity
 Assets/Scenes/Start_0.unity
 Assets/Scenes/Level_1_1.unity
+Assets/Scenes/Level_1_2.unity
+Assets/Scenes/Level_2_1.unity
+Assets/Scenes/Level_3_1.unity
 SceneListEnd?
 b7232cd9242d47da7033a530763cd3fe Assembly-CSharp.dll:.UserData
 05524b8f659e7bfe5756d1335fec24ba UnityEngine.Timeline.dll:UnityEngine.Timeline.ActivationPlayableAsset
@@ -19,8 +22,8 @@ ff05dcdf90651c3d98a9cad3df5e471e UnityEngine.Timeline.dll:UnityEngine.Timeline.C
 30afa8783a8bbee2e465ec9ce1efaee2 UnityEngine.Timeline.dll:UnityEngine.Timeline.GroupTrack
 30afa8783a8bbee2e465ec9ce1efaee2 UnityEngine.Timeline.dll:UnityEngine.Timeline.PlayableTrack
 607d64d2c4bc76ac9876e6f7b9cc7edf UnityEngine.Timeline.dll:UnityEngine.Timeline.TimelineAsset
-39e93dacb1e8934cd4fc07ae21f6d476 Assembly-CSharp.dll:.UIController
-8cb5d347da56c0b29289ec5ee76c8a41 Assembly-CSharp.dll:.LevelInfo
+a9c121cd66580bf80b27a65aba03a175 Assembly-CSharp.dll:.UIController
+b40888e53ca20004e64a68d96bb0d63e Assembly-CSharp.dll:.LevelInfo
 be3c7e1564b3fa2835d2ffd1c2fec012 Assembly-CSharp.dll:.SceneController
 a35dc9cca2faebc5f5f1aeb9e8e47bbe UnityEngine.UI.dll:UnityEngine.UI.AspectRatioFitter
 05524b8f659e7bfe5756d1335fec24ba UnityEngine.UI.dll:UnityEngine.EventSystems.BaseInput
@@ -98,7 +101,7 @@ ff05dcdf90651c3d98a9cad3df5e471e UnityEngine.Timeline.dll:UnityEngine.Timeline.C
 30afa8783a8bbee2e465ec9ce1efaee2 UnityEngine.Timeline.dll:UnityEngine.Timeline.GroupTrack
 30afa8783a8bbee2e465ec9ce1efaee2 UnityEngine.Timeline.dll:UnityEngine.Timeline.PlayableTrack
 607d64d2c4bc76ac9876e6f7b9cc7edf UnityEngine.Timeline.dll:UnityEngine.Timeline.TimelineAsset
-4a302f79a6040e498d6f7012d82a1f59 Assembly-CSharp.dll:.LevelSlot
+2e7af67eecc30ed8dc3a3bb9b655542b Assembly-CSharp.dll:.LevelSlot
 fc1e0f4d8439d9928083474691511a13 UnityEngine.Networking.dll:UnityEngine.Networking.NetworkAnimator
 05524b8f659e7bfe5756d1335fec24ba UnityEngine.Networking.dll:UnityEngine.Networking.NetworkBehaviour
 60b2bb652410a5867a5ab9a01cd38461 UnityEngine.Networking.dll:UnityEngine.Networking.NetworkDiscovery
@@ -123,7 +126,7 @@ bc68edb0af574bf79f9550ead8ebae5c UnityEngine.HoloLens.dll:UnityEngine.Audio.Audi
 c2275a8bfbb9f9942cad75ecdfded41d UnityEngine.HoloLens.dll:UnityEngine.XR.WSA.SpatialMappingCollider
 45f3431f0103c41611e8d4eec3d439df UnityEngine.HoloLens.dll:UnityEngine.XR.WSA.SpatialMappingRenderer
 3173c4cf336c8b4d2ac0f2f04fbc748a Assembly-CSharp.dll:.MotorPart
-652112f191549c881b5c74c0c4e27b28 Assembly-CSharp.dll:.ChallengeController
+5e2414b34faf55de80e422d47e7e44df Assembly-CSharp.dll:.ChallengeController
 5f4753e41f01e8663f4109e4ac8ac87f Assembly-CSharp.dll:.CoverPart
 fc1e0f4d8439d9928083474691511a13 UnityEngine.Networking.dll:UnityEngine.Networking.NetworkAnimator
 05524b8f659e7bfe5756d1335fec24ba UnityEngine.Networking.dll:UnityEngine.Networking.NetworkBehaviour
@@ -161,5 +164,8 @@ c2275a8bfbb9f9942cad75ecdfded41d UnityEngine.HoloLens.dll:UnityEngine.XR.WSA.Spa
 d317f1c0271d617fe523d93edcdf3cfb Assembly-CSharp.dll:.UserCarParts
 ca5b393540c3f64289968c971012dd13 Assembly-CSharp.dll:.InputHandler
 88f0511c6a7280fd3730cac708be638a Assembly-CSharp.dll:.LevelManager
-564beab49962b63bd1625d9a781ea400 Assembly-CSharp.dll:.CheckPoint
-a428b03dfcc2b87d5fda7fa789bcdf9e Assembly-CSharp.dll:.CarController
+0bf940bb53e0803c5a1e1965c0b98608 Assembly-CSharp.dll:.CheckPoint
+1ada65839c15e0dae6406e48fed73227 Assembly-CSharp.dll:.CarController
+a5fae7b9f456f70653484a3313595d09 Assembly-CSharp.dll:.LevelHud
+078156b49418d8fc07e0c03864dc8fd0 Assembly-CSharp.dll:.WheelColliderAdjust
+fd829ee6c09645b7bebdc9d63492cc81 Assembly-CSharp.dll:.WheelAdjust

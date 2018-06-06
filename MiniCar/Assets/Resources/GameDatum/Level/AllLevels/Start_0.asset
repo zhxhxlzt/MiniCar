@@ -15,5 +15,7 @@ MonoBehaviour:
   m_locked: 0
   m_isBegin: 1
   m_isEnd: 0
+  m_timeUsage: 0
   m_next:
   - {fileID: 11400000, guid: 8d854e81638d10e4590289946199c23b, type: 2}
+  - {fileID: 11400000, guid: fdb42bd0ff1ebd746913355c2725a2f0, type: 2}

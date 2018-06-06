@@ -7,7 +7,7 @@ public class CarController : MonoBehaviour {
 
     [Header( "=== 外部控制器 ===" )]
     [SerializeField] private InputHandler m_inputHandler;    //输入控制器
-    [SerializeField] public UserCarParts m_currentCar;       //当前赛车配置
+    [SerializeField] private UserCarParts m_currentCar;       //当前赛车配置
     [SerializeField] private Rigidbody m_carRigidbody;
 
     [Header( "=== 车轮模型 ===" )]
@@ -24,7 +24,7 @@ public class CarController : MonoBehaviour {
     [SerializeField] private float m_wheelFriction;         //车轮摩擦力
     [SerializeField] private float m_airDrag;               //空气阻力
     [SerializeField] private float m_downForce;             //下压力
-    [SerializeField] private Vector3 m_centreOfMass = Vector3.zero;   //重心
+    [SerializeField] private GameObject m_centorOfMass;     //重心
 
     private float m_OldRotation;
 
@@ -34,13 +34,28 @@ public class CarController : MonoBehaviour {
     [SerializeField] [Range(0,1)]private float m_steerHelper;   //转向帮助
     public Vector3 Velocity { get { return m_carRigidbody.velocity; } }
 
-    [Header( "=== 测试变量 ===" )]
-    public float downForceOffset;
+    //[Header( "=== 测试变量 ===" )]
+    //public WheelAdjust wheelColliderTest;
+
+
+    //private void TestWheelCurve()
+    //{
+    //    for(int i = 0; i < 2; i++ )
+    //    {
+    //        wheelColliders[i].forwardFriction = wheelColliderTest.front.forwardFriction;
+    //        wheelColliders[i].sidewaysFriction = wheelColliderTest.front.sidewaysFriction;
+    //    }
+
+    //    for(int i = 2; i < 4; i++ )
+    //    {
+    //        wheelColliders[i].forwardFriction = wheelColliderTest.rear.forwardFriction;
+    //        wheelColliders[i].sidewaysFriction = wheelColliderTest.rear.sidewaysFriction;
+    //    }
+    //}
 
     private void Awake()
     {
         m_carRigidbody = GetComponent<Rigidbody>();
-        m_carRigidbody.centerOfMass = m_centreOfMass;    //设置赛车重心位置
     }
 
     private void Start()
@@ -52,6 +67,8 @@ public class CarController : MonoBehaviour {
 
     private void FixedUpdate()
     {
+        //TestWheelCurve();   //测试friction curve
+
         AdjustCarAttribute();     
         AdjustForce();
         DriveControl();
@@ -126,7 +143,7 @@ public class CarController : MonoBehaviour {
                 return;
             }
         }
-        
+
         if ( Mathf.Abs( m_OldRotation - transform.eulerAngles.y ) < 10f )
         {
             var turnAdjust = (transform.eulerAngles.y - m_OldRotation) * m_steerHelper;
@@ -139,8 +156,20 @@ public class CarController : MonoBehaviour {
 
     private void AdjustForce()
     {
+        m_carRigidbody.centerOfMass = m_centorOfMass.transform.localPosition;
+
         //调整下压力
-        m_carRigidbody.AddForce( -m_downForce * transform.up);         //下压力方向为赛车下方
+        foreach ( var item in wheelColliders )
+        {
+            Vector3 pos;
+            Quaternion quat;
+
+            item.GetWorldPose( out pos, out quat );
+
+            m_carRigidbody.AddForceAtPosition( - 0.25f * m_downForce * transform.up, pos);
+        }
+
+                 //下压力方向为赛车下方
         
         //调整空气阻力
         m_carRigidbody.AddForce( -m_airDrag * Velocity.sqrMagnitude * Velocity.normalized );    //空气阻力正比于速度的平方
@@ -169,5 +198,20 @@ public class CarController : MonoBehaviour {
             wheelColliders[i].GetWorldPose( out pos, out quat );        
             WheelModels[i].transform.SetPositionAndRotation( pos, quat );
         }
+    }
+
+    private void OnGUI()
+    {
+        WheelDebug();
+    }
+
+    private void WheelDebug()
+    {
+        WheelHit hit;
+        wheelColliders[0].GetGroundHit( out hit );
+
+        //Debug.Log( hit.sidewaysSlip );
+
+        Debug.Log( hit.force );
     }
 }

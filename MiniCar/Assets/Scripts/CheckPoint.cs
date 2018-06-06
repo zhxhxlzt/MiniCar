@@ -5,32 +5,25 @@ using UnityEngine.UI;
 
 public class CheckPoint : MonoBehaviour {
 
-    [Header( "=== UI组件 ===" )]
-    public Text Result;
+    [Header( "=== 外部控制器 ===" )]
+    [SerializeField] private LevelHud m_levelHud;   //关卡HUD
 
     [Header("=== 当前检查点状态 ===")]
     [SerializeField]private bool passed = false;      //检查赛车是否通过
 
     public bool Passed { get { return passed; } }
 
+    private void Start()
+    {
+        m_levelHud = FindObjectOfType<LevelHud>();
+    }
+
     //警告错误方向
     private void AlertWrongDirection()
     {
-        Result.text = "方向错误！";
-        StartCoroutine( BlinkResult() );
+        m_levelHud.SetWrongDirection( 3 );
     }
-
-    //闪烁UI组件提示
-    IEnumerator BlinkResult()
-    {
-        for( int i = 0; i < 5; i++ )
-        {
-            yield return new WaitForSeconds( 0.5f );    //每隔0.5秒闪烁一次
-            Result.enabled = true;
-            yield return new WaitForSeconds( 0.5f );
-            Result.enabled = false;
-        }
-    }
+    
 
     private void OnTriggerEnter(Collider other)
     {

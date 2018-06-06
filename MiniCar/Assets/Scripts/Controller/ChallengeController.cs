@@ -27,15 +27,9 @@ public class ChallengeController : MonoBehaviour {
     [Header( "=== 外部控制器 ===" )]
     [SerializeField] private InputHandler m_inputHandler;   //输入控制器
     [SerializeField] private SceneController m_sceneController; //场景控制器
+    [SerializeField] private LevelHud m_levelHud;               //关卡HUD
     [SerializeField] private LevelInfoList m_levelInfoList;     //所有关卡信息表
     private CheckPointController m_checkPointController;    //检查点控制器
-
-
-    [Header( "=== UI组件 ===" )]
-    public Text CountDownLabel;     //倒计时组件
-    public Text TimeCountLabel;     //用时统计组件
-    public Text TurnCountLabel;     //圈数组件
-    public Text ResultLabel;        //结果显示组件
 
     //公有获取只读数据方法，
     public float TimeLimit { get { return m_timeLimit; } }
@@ -58,21 +52,16 @@ public class ChallengeController : MonoBehaviour {
         m_checkPointController = new CheckPointController();
         m_inputHandler = FindObjectOfType<InputHandler>();
         m_sceneController = FindObjectOfType<SceneController>();
-        m_levelInfoList = Resources.Load<UserData>( "UserDatum/UserData" ).levelInfoList;
-
-        CountDownLabel = GameObject.Find( "CountDown" ).GetComponent<Text>();
-        TimeCountLabel = GameObject.Find( "TimeCount" ).GetComponent<Text>();
-        TurnCountLabel = GameObject.Find( "TurnCount" ).GetComponent<Text>();
-        ResultLabel = GameObject.Find( "Result" ).GetComponent<Text>();
+        m_levelHud = FindObjectOfType<LevelHud>();
+        //m_levelInfoList = Resources.Load<UserData>( "UserDatum/UserData" ).levelInfoList;
         
-        SetTimeCountLabel();                            //设置初始时间
         StartCoroutine( CheckChallengeState() );        //开始协程检测玩家闯关状态
     }
 
     private void FixedUpdate()
     {
-        SetTimeCountLabel();        //在固定循环中调用时间统计
         CountTurn();                //检查圈数
+        CountTimeUsage();           //计时
         //Debug.Log( "场景名为：" + m_sceneController.CurrentSceneName );
     }
 
@@ -117,11 +106,10 @@ public class ChallengeController : MonoBehaviour {
     //统计圈数
     private void CountTurn()
     {
-        SetTurnCountLabel();
-        if( m_checkPointController.AllPassed() )
+        if( m_challengeState == ChallengeState.underway && m_checkPointController.AllPassed())
         {
-            m_turnCount++;
-            m_checkPointController.ResetAllCheckPoint();
+            m_turnCount++;  //若通过所有检查点，完成圈数加1
+            m_checkPointController.ResetAllCheckPoint();    //重置所有检查点，开始记录下一圈
             Debug.Log( "已完成" + m_turnCount + "圈" );
         }
     }
@@ -129,32 +117,13 @@ public class ChallengeController : MonoBehaviour {
     //用时统计
     private void CountTimeUsage()
     {
+        //只有在闯关进行中状态才会累计时间
         if ( m_challengeState == ChallengeState.underway )
         {
-            m_timeCount += Time.fixedDeltaTime;
+            m_timeCount += Time.fixedDeltaTime;     
         }
     }
-
-    //设置用时UI
-    private void SetTimeCountLabel()
-    {
-        CountTimeUsage();
-        TimeCountLabel.text = "耗时：" + Convert.ToInt32(TimeCount).ToString() + "秒/" + TimeLimit.ToString() + "秒";
-    }
     
-    //设置圈数UI
-    private void SetTurnCountLabel()
-    {
-        TurnCountLabel.text = "已完成：" + TurnCount.ToString() + "/" + TurnLimit.ToString() + "圈";
-    }
-
-    //设置闯关状态
-    private void SetResultLabel(string info)
-    {
-        ResultLabel.enabled = true;
-        ResultLabel.text = info;
-    }
-
     //判断游戏状态
     IEnumerator CheckChallengeState()
     {
@@ -164,7 +133,7 @@ public class ChallengeController : MonoBehaviour {
             if ( m_challengeState == ChallengeState.begin )
             {
                 m_inputHandler.MoveInput = false;              //在倒计时阶段关闭赛车控制
-                StartCoroutine( BeignCountDown() );             //开始倒计时协程
+                m_levelHud.SetCountDown(CountDown);             //开始倒计时协程
                 yield return new WaitForSeconds( m_countDown ); //等待倒计时结束
                 m_challengeState = ChallengeState.underway;     //进入闯关中状态
             }
@@ -173,6 +142,7 @@ public class ChallengeController : MonoBehaviour {
             if ( m_challengeState == ChallengeState.underway )
             {
                 m_inputHandler.MoveInput = true;               //开启赛车控制
+
                 //若闯关用时大于时间限制，则闯关失败
                 if ( m_timeCount > m_timeLimit )
                 {
@@ -189,43 +159,34 @@ public class ChallengeController : MonoBehaviour {
             //闯关暂停状态
             if ( m_challengeState == ChallengeState.paused )
             {
-                m_inputHandler.MoveInput = false;
+                //m_inputHandler.MoveInput = false;     //在此状态测试赛车功能
             }
             
             if ( m_challengeState == ChallengeState.failed )
             {
-                SetResultLabel( "闯关失败！你真是个菜鸡！" );
-                m_inputHandler.MoveInput = false;
+                m_levelHud.SetResultLabel( "闯关失败！你真是个菜鸡！" );
+
+                m_inputHandler.MoveInput = false;   //禁用输入
+
                 break;
             }
 
             if ( m_challengeState == ChallengeState.succeed )
             {
-                SetResultLabel( "闯关成功！" );
-                m_levelInfoList.GetLevelInfo( m_sceneController.CurrentSceneName ).Passed = true;
-                m_inputHandler.MoveInput = false;
+                var info = m_levelInfoList.GetLevelInfo( m_sceneController.CurrentSceneName );  //获取当前关卡信息
+                
+                info.Passed = true;     //设置通过当前关卡
+                info.SetTimeUsage( Convert.ToInt32( TimeCount ) );      //设置用时
+
+                m_levelHud.SetResultLabel( "  闯关成功！\n" +
+                                           "本次用时：" + Convert.ToInt32( TimeCount ) + "秒\n" +
+                                           "最佳记录: " + Convert.ToInt32( info.TimeUsage ) + "秒" );
+
+                m_inputHandler.MoveInput = false;   //禁用输入
+
                 break;
             }
             yield return null;
         }
-    }
-
-    //开始倒计时
-    IEnumerator BeignCountDown()
-    {
-        CountDownLabel.gameObject.SetActive( true );
-        int countDownTime = m_countDown;
-        while(countDownTime > 0)
-        {
-            CountDownLabel.text = countDownTime.ToString();
-            countDownTime--;
-            yield return new WaitForSeconds( 1f );
-        }
-
-        CountDownLabel.text = "Go!";
-
-        yield return new WaitForSeconds( 1f );
-
-        CountDownLabel.gameObject.SetActive( false );
     }
 }

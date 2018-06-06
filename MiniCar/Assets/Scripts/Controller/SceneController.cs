@@ -9,7 +9,7 @@ public class SceneController : MonoBehaviour {
 
     private void Start()
     {
-        userData = Resources.Load<UserData>( "UserDatum/UserData" );
+        //userData = Resources.Load<UserData>( "UserDatum/UserData" );
     }
 
     //载入场景
@@ -33,6 +33,7 @@ public class SceneController : MonoBehaviour {
     //游戏退出方法
     public void QuitGame()
     {
+
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 

@@ -65,6 +65,7 @@
     <Compile Include="Assets\Scripts\Controller\ChallengeController.cs" />
     <Compile Include="Assets\Scripts\Controller\CheckPointController.cs" />
     <Compile Include="Assets\Scripts\Controller\InputHandler.cs" />
+    <Compile Include="Assets\Scripts\Controller\LevelHud.cs" />
     <Compile Include="Assets\Scripts\Controller\LevelManager.cs" />
     <Compile Include="Assets\Scripts\Controller\SceneController.cs" />
     <Compile Include="Assets\Scripts\Controller\UIController.cs" />
@@ -76,6 +77,8 @@
     <Compile Include="Assets\Scripts\Scriptable\UserCarParts.cs" />
     <Compile Include="Assets\Scripts\Scriptable\UserData.cs" />
     <Compile Include="Assets\Scripts\Scriptable\WheelPart.cs" />
+    <Compile Include="Assets\Scripts\Test\WheelAdjust.cs" />
+    <Compile Include="Assets\Scripts\Test\WheelColliderAdjust.cs" />
     <Reference Include="UnityEditor.StandardEvents">
       <HintPath>E:/GitHub/MiniCar/MiniCar/Library/ScriptAssemblies/UnityEditor.StandardEvents.dll</HintPath>
     </Reference>

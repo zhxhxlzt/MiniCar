@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Name: DefaultCover
   m_EditorClassIdentifier: 
   airDrag: 0.25
-  downForce: 1000
+  downForce: 0

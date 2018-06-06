@@ -57,5 +57,4 @@ public class LevelManager : MonoBehaviour {
             item.CurLevelInfo.Reset();
         }
     }
-
 }

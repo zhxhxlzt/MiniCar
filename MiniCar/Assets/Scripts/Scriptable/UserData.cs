@@ -18,5 +18,4 @@ public class UserData : ScriptableObject {
         levelInfoList.ResetLevelInfo();
         currentCar.Reset();
     }
-
 }
