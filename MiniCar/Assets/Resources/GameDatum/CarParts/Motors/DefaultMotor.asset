@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Name: DefaultMotor
   m_EditorClassIdentifier: 
   rpm: 800
-  motorTorque: 450
+  motorTorque: 800

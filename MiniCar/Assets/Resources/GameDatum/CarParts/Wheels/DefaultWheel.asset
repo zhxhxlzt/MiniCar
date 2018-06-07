@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Name: DefaultWheel
   m_EditorClassIdentifier: 
   friction: 1
-  brakeTorque: 5000
+  brakeTorque: 4000

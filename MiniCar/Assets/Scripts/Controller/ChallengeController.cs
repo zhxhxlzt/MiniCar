@@ -11,7 +11,6 @@ using System;
 
 public enum ChallengeState { begin, underway, paused, failed, succeed}  //闯关状态
 
-
 public class ChallengeController : MonoBehaviour {
 
     [Header( "=== 关卡控制器配置属性 ===" )]
@@ -46,14 +45,15 @@ public class ChallengeController : MonoBehaviour {
         m_challengeState = ChallengeState.begin;
     }
 
-    //初始化控制器
+    //初始化
     private void Start()
     {
         m_checkPointController = new CheckPointController();
         m_inputHandler = FindObjectOfType<InputHandler>();
         m_sceneController = FindObjectOfType<SceneController>();
         m_levelHud = FindObjectOfType<LevelHud>();
-        //m_levelInfoList = Resources.Load<UserData>( "UserDatum/UserData" ).levelInfoList;
+
+        m_levelInfoList = Resources.Load<UserData>( "UserDatum/UserData" ).levelInfoList;
         
         StartCoroutine( CheckChallengeState() );        //开始协程检测玩家闯关状态
     }
@@ -188,5 +188,11 @@ public class ChallengeController : MonoBehaviour {
             }
             yield return null;
         }
+    }
+
+    private void OnApplicationQuit()
+    {
+        Debug.Log( "Saved!" );
+        m_levelInfoList.Save();
     }
 }

@@ -12,20 +12,23 @@ public class InputHandler : MonoBehaviour {
     [SerializeField] private float accel = 0f;    //加减速，倒车;  数值范围[-1，1]
     [SerializeField] private float steer = 0f;    //转向;  数值范围[-1, 1]
     [SerializeField] private float brake = 0f;    //刹车;  数值范围[0, 1]
+    [SerializeField] private bool shift = false;
 
     //外部获取移动参数
     public float Accel { get { return accel; } }
     public float Steer { get { return steer; } }
     public float Brake { get { return brake; } }
+    public bool Shift { get { return shift; } }
 
     private void FixedUpdate()
     {
         HandleMoveInput();
     }
 
+    //处理输入
     private void HandleMoveInput()
     {
-        //若为false， 不处理输入
+        //若为false，自动刹车，不处理输入
         if ( !MoveInput )
         {
             accel = 0f;
@@ -34,8 +37,9 @@ public class InputHandler : MonoBehaviour {
             return;
         }
 
-        accel = Input.GetAxis( "Vertical" );
+        accel = Input.GetAxis( "Vertical" );            
         steer = Input.GetAxis( "Horizontal" );
         brake = Input.GetAxis( "Jump" );
+        shift = Input.GetKey( KeyCode.LeftShift );
     }
 }

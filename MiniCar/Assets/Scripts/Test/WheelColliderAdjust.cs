@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// 摩擦曲线
+/// </summary>
 [System.Serializable]
 public struct Friction
 {
@@ -17,7 +20,7 @@ public struct Friction
         ExtremumValue = frictionCurve.extremumValue;
         AsymptoteSlip = frictionCurve.asymptoteSlip;
         AsymptoteValue = frictionCurve.asymptoteValue;
-        Stiffness = frictionCurve.stiffness;
+        //Stiffness = frictionCurve.stiffness;
     }
 
     public WheelFrictionCurve GetData()
@@ -28,7 +31,7 @@ public struct Friction
             extremumValue = ExtremumValue,
             asymptoteSlip = AsymptoteSlip,
             asymptoteValue = AsymptoteValue,
-            stiffness = Stiffness
+            //stiffness = Stiffness
         };
     }
 }

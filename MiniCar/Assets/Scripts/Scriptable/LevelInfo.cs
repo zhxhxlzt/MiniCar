@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -19,6 +20,7 @@ public class LevelInfo : ScriptableObject {
     public bool IsEnd { get { return m_isEnd; } set { m_isEnd = value; } }
     public float TimeUsage { get { return m_timeUsage; } set { m_timeUsage = value; } }
 
+    //设置子关卡
     public void SetNext( List<LevelInfo> next )
     {
         if( m_next.Equals(next) )
@@ -30,6 +32,7 @@ public class LevelInfo : ScriptableObject {
         m_next = next;
     }
     
+    //设置闯关用时
     public void SetTimeUsage(float time)
     {
         if( Passed )
@@ -55,6 +58,20 @@ public class LevelInfo : ScriptableObject {
                 item.m_locked = false;
             }
         }
+    }
+
+    public void Save()
+    {
+        PlayerPrefs.SetString( name + "passed", Passed.ToString() );
+        PlayerPrefs.SetString( name + "locked", Locked.ToString() );
+        PlayerPrefs.SetString( name + "timeUsage", TimeUsage.ToString() );
+    }
+
+    public void Load()
+    {
+        Passed = Convert.ToBoolean( PlayerPrefs.GetString( name + "passed" ) );
+        Locked = Convert.ToBoolean( PlayerPrefs.GetString( name + "locked" ) );
+        TimeUsage = (float)Convert.ToDouble( PlayerPrefs.GetString( name + "timeUsage" ) );
     }
 
     //重置关卡

@@ -59,6 +59,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\CarAudio.cs" />
     <Compile Include="Assets\Scripts\CheckPoint.cs" />
     <Compile Include="Assets\Scripts\Controller\CameraController.cs" />
     <Compile Include="Assets\Scripts\Controller\CarController.cs" />
@@ -68,7 +69,7 @@
     <Compile Include="Assets\Scripts\Controller\LevelHud.cs" />
     <Compile Include="Assets\Scripts\Controller\LevelManager.cs" />
     <Compile Include="Assets\Scripts\Controller\SceneController.cs" />
-    <Compile Include="Assets\Scripts\Controller\UIController.cs" />
+    <Compile Include="Assets\Scripts\Controller\UIAudioController.cs" />
     <Compile Include="Assets\Scripts\LevelSlot.cs" />
     <Compile Include="Assets\Scripts\Scriptable\CoverPart.cs" />
     <Compile Include="Assets\Scripts\Scriptable\LevelInfo.cs" />

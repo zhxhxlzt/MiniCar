@@ -125,9 +125,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1d44be956ffdf84abc95ed584b7e403, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_camera: {fileID: 0}
+  m_camera: {fileID: 4150166962840184}
   m_follow: {fileID: 0}
+  m_carRig: {fileID: 0}
   m_lookAt: {fileID: 0}
   offset: {x: 0, y: 2, z: -3}
+  rotSpeed: 0.533
+  rotAngleLimit: 0
   m_isFollowing: 1
   m_isLookAt: 1

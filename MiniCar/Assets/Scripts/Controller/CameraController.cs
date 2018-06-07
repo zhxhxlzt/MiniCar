@@ -5,26 +5,33 @@ using UnityEngine;
 public class CameraController : MonoBehaviour {
 
     [Header( "=== 控制对象 ===" )]
-    [SerializeField] private GameObject m_camera;   //相机
+    [SerializeField] private Transform m_camera;   //相机
 
     [Header("=== 目标 ===")]
-    [SerializeField]private GameObject m_follow;    //跟随目标
-    [SerializeField] private GameObject m_lookAt;   //看向目标
+    [SerializeField] private Transform m_follow;    //跟随目标
+    [SerializeField] private Rigidbody m_carRig;   //朝向速度方向
+    [SerializeField] private Transform m_lookAt;   //看向目标
 
     [Header( "=== 相机参数 ===" )]
     [SerializeField] private Vector3 offset;        //相机与跟随目标之间的偏移量
-    private Vector3 lastOffset;
+    [SerializeField] [Range(0,1)] private float rotSpeed;
+    [SerializeField] private float rotAngleLimit;
     [SerializeField] private bool m_isFollowing = true;
     [SerializeField] private bool m_isLookAt = true;
 
-    private void Awake()
+    //初始化，获取相机gameobject
+    private void Start()
     {
-        m_camera = GetComponentInChildren<Camera>().gameObject;
+        m_camera = GetComponentInChildren<Camera>().transform;
+        m_carRig = GameObject.FindGameObjectWithTag( "Player" ).GetComponent<Rigidbody>();
+        m_follow = m_carRig.transform.Find( "CameraHelp" ).Find( "FollowPoint" );
+        m_lookAt = m_carRig.transform.Find( "CameraHelp" ).Find( "LookAtPoint" );
     }
 
+    //物理循环
     private void FixedUpdate()
     {
-        AdjustOffset();
+        AdjustCameraOffset();
         FollowTarget();
         LookAtTarget();
         Rotate();
@@ -35,8 +42,7 @@ public class CameraController : MonoBehaviour {
     {
         if ( !m_isFollowing ) return;
 
-        transform.position = m_follow.transform.position;
-        
+        transform.position = m_follow.position;
     }
 
     //看向目标
@@ -44,23 +50,36 @@ public class CameraController : MonoBehaviour {
     {
         if ( !m_isLookAt ) return;
 
-        m_camera.transform.LookAt(m_lookAt.transform);
+        m_camera.LookAt(m_lookAt.transform);
     }
 
     //调整偏移量
-    private void AdjustOffset()
+    private void AdjustCameraOffset()
     {
-        if( lastOffset != offset )
-        {
-            m_camera.transform.position = transform.position + offset;
-        }
-
-        lastOffset = offset;
+        m_camera.localPosition = offset;
     }
 
     //旋转
     private void Rotate()
     {
-        transform.forward = m_follow.transform.forward;
+        transform.forward = Vector3.Slerp( transform.forward, FigureHorTargetForward(), rotSpeed );
+    }
+    
+    private Vector3 FigureHorTargetForward()
+    {
+        Vector3 horVelocity = m_carRig.velocity; //new Vector3( m_carRig.velocity.x, 0, m_carRig.velocity.z );   //赛车水平速度
+        Vector3 horCarForward = m_follow.forward;//new Vector3( m_follow.forward.x, 0, m_follow.forward.z );   //赛车水平朝向
+
+        if (horVelocity.magnitude == 0 || Vector3.SignedAngle(m_carRig.velocity, m_follow.forward, Vector3.up) < 5f)
+        {
+            return horCarForward.normalized;
+        }
+        
+        if( Vector3.Angle( horCarForward, horVelocity) <= rotAngleLimit )
+        {
+            return horVelocity.normalized;
+        }
+
+        return Vector3.RotateTowards( horCarForward, horVelocity, rotAngleLimit, 1f ).normalized;
     }
 }

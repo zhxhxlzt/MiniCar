@@ -6,15 +6,15 @@ using System;
 public class CarController : MonoBehaviour {
 
     [Header( "=== 外部控制器 ===" )]
-    [SerializeField] private InputHandler m_inputHandler;    //输入控制器
-    [SerializeField] private UserCarParts m_currentCar;       //当前赛车配置
-    [SerializeField] private Rigidbody m_carRigidbody;
+    [SerializeField] private InputHandler m_input;    //输入控制器
+    [SerializeField] private UserCarParts m_parts; //当前赛车配置
+    [SerializeField] private Rigidbody m_rgd;         //赛车刚体RigidBody
 
     [Header( "=== 车轮模型 ===" )]
-    [SerializeField] private GameObject[] WheelModels;
+    [SerializeField] private GameObject[] m_wheelModels;
 
     [Header( "=== 车轮碰撞器 ===" )]
-    [SerializeField] private WheelCollider[] wheelColliders;
+    [SerializeField] private WheelCollider[] m_wheelColliders;
 
     [Header( "=== 赛车属性 ===" )]
     [SerializeField] private float m_maxSpeed;              //最高速度 m/s
@@ -25,193 +25,232 @@ public class CarController : MonoBehaviour {
     [SerializeField] private float m_airDrag;               //空气阻力
     [SerializeField] private float m_downForce;             //下压力
     [SerializeField] private GameObject m_centorOfMass;     //重心
+    
+    [Header( "=== 赛车状态 ===" )]
+    [SerializeField] [Range( 0, 1 )] private float m_slipLimit = 0.8f;    //侧滑判定上限
+    [SerializeField] [Range( 0, 1 )] private float m_steerHelper;       //转向帮助
 
-    private float m_OldRotation;
+    [Header("=== 用作函数静态变量 ===")]
+    [SerializeField] private float m_OldRotation;    //记录赛车旋转角
 
-    [Header("=== 赛车状态 ===")]
-    public bool Driveable = true;       //是否处于驾驶状态
-    //[SerializeField] private bool m_isOnGround = true;      //是否着地
-    [SerializeField] [Range(0,1)]private float m_steerHelper;   //转向帮助
-    public Vector3 Velocity { get { return m_carRigidbody.velocity; } }
+    //是否处于驾驶状态
+    public bool Driveable = true;
+    
+    //赛车最大速度
+    public float MaxSpeed { get { return m_maxSpeed; } }
 
-    //[Header( "=== 测试变量 ===" )]
-    //public WheelAdjust wheelColliderTest;
+    //赛车速度
+    public Vector3 Velocity { get { return m_rgd.velocity; } }
 
+    //空气阻力
+    public Vector3 AirForce{ get; private set; }
 
-    //private void TestWheelCurve()
-    //{
-    //    for(int i = 0; i < 2; i++ )
-    //    {
-    //        wheelColliders[i].forwardFriction = wheelColliderTest.front.forwardFriction;
-    //        wheelColliders[i].sidewaysFriction = wheelColliderTest.front.sidewaysFriction;
-    //    }
-
-    //    for(int i = 2; i < 4; i++ )
-    //    {
-    //        wheelColliders[i].forwardFriction = wheelColliderTest.rear.forwardFriction;
-    //        wheelColliders[i].sidewaysFriction = wheelColliderTest.rear.sidewaysFriction;
-    //    }
-    //}
-
-    private void Awake()
+    //赛车是否侧滑
+    public bool Sliped
     {
-        m_carRigidbody = GetComponent<Rigidbody>();
+        get
+        {
+            foreach ( var item in m_wheelColliders )
+            {
+                if ( CheckSidewaysSlip( item, m_slipLimit ) )
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 
+    //赛车是否着地
+    public bool OnGround {
+        get
+        {
+            //若有车轮未着地，则赛车标为未着地
+            foreach ( var item in m_wheelColliders )    
+            {
+                if(!item.isGrounded)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+    }
+
+    //根据正向摩擦曲线计算最佳扭矩
+    public float FigureBestTorque(WheelCollider wheel)
+    {
+        WheelHit hit;
+        wheel.GetGroundHit( out hit );
+
+        float torque = hit.force * wheel.forwardFriction.extremumValue * 0.15f;
+
+        return torque;
+    }
+
+    //初始化
     private void Start()
     {
-        m_inputHandler = GameObject.FindGameObjectWithTag( "GameController" ).GetComponent<InputHandler>(); //获取输入组件
-        m_currentCar = Resources.Load<UserData>( "UserDatum/UserData" ).currentCar;
+        m_rgd = GetComponent<Rigidbody>();     //获取刚体
+        m_input = GameObject.FindGameObjectWithTag( "GameController" ).GetComponent<InputHandler>(); //获取输入组件
+        m_parts = Resources.Load<UserData>( "UserDatum/UserData" ).currentCar;
+
         AdjustCarAttribute();     //初始化赛车属性
+        m_wheelColliders[0].ConfigureVehicleSubsteps( 5, 10, 5 );  //应用车轮碰撞器迭代步数
     }
 
+    //物理循环
     private void FixedUpdate()
     {
-        //TestWheelCurve();   //测试friction curve
-
-        AdjustCarAttribute();     
-        AdjustForce();
-        DriveControl();
-        SteerHelper();
-        SyncWheels();
+        AdjustCarAttribute();   //调整赛车属性
+        AdjustForce();          //赛车受力调整
+        DriveControl();         //驾驶控制
     }
-
+    
+    //根据赛车各零件调整赛车属性
     private void AdjustCarAttribute()
     {
-        if ( m_currentCar == null )
+        if ( m_parts == null )
         {
-            m_currentCar = FindObjectOfType<UserCarParts>();
-            if ( m_currentCar == null )
+            m_parts = FindObjectOfType<UserCarParts>();
+            if ( m_parts == null )
             {
                 Debug.Log( "userParts Not exists" );
                 return;
             }
         }
 
-        m_maxSpeed = (2f * Mathf.PI * wheelColliders[0].radius) * m_currentCar.motor.RPM / 60f;   //最大速度(m/s) = 车轮周长 * rpm / 60
-        m_maxMotorTorque = m_currentCar.motor.MotorTorque;    //最大动力扭矩为马达零件扭矩
-        m_maxBrakeTorque = m_currentCar.wheel.BrakeTorque;    //最大刹车扭矩为车轮零件刹车扭矩
-        m_wheelFriction = m_currentCar.wheel.Friction;        //车轮摩擦力
-        m_airDrag = m_currentCar.cover.AirDrag;               //空气阻力
-        m_downForce = m_currentCar.cover.DownForce;           //下压力
-    }
+        m_rgd.centerOfMass = m_centorOfMass.transform.localPosition;   //设置赛车重心
+        
+        //motor零件属性
+        m_maxSpeed = (2f * Mathf.PI * m_wheelColliders[0].radius) * m_parts.motor.RPM / 60f;//最大速度(m/s) = 车轮周长 * rpm / 60
+        m_maxMotorTorque = m_parts.motor.MotorTorque;    //最大动力扭矩为马达零件扭矩
 
+        //wheel零件属性
+        m_maxBrakeTorque = m_parts.wheel.BrakeTorque;    //最大刹车扭矩为车轮零件刹车扭矩
+        m_wheelFriction = m_parts.wheel.Friction;        //车轮摩擦力
+
+        //cover零件属性
+        m_airDrag = m_parts.cover.AirDrag;               //空气阻力
+        m_downForce = m_parts.cover.DownForce;           //下压力
+    }
+    
+    //驾驶控制
     private void DriveControl()
     {
+        //非驾驶状态不接受移动输入命令控制
         if ( !Driveable )
         {
             Debug.Log( "不能驾驶！" );
             return;
         }
 
-        float motorTorque = m_inputHandler.Accel * (( m_carRigidbody.velocity.magnitude <= m_maxSpeed ) ? 
-            m_maxMotorTorque / 4 :
-            0);   //各车轮动力扭矩,超过最高速度则为0
-
-        float brakeTorque = m_inputHandler.Brake * m_maxBrakeTorque / 2;   //各车轮制动扭矩
-
-        float steerAngle = m_maxSteer * m_inputHandler.Steer;
-
-        //非驾驶状态不接受移动输入命令控制
+        //各车轮动力扭矩,超过最高速度则为0
+        float motorTorque = m_input.Accel * 
+                            (( m_rgd.velocity.magnitude <= m_maxSpeed ) ? m_maxMotorTorque : 0);   
         
+        float brakeTorque = m_input.Brake * m_maxBrakeTorque;   //各车轮制动扭矩
+        float steerAngle = m_maxSteer * m_input.Steer;          //转向角
 
-        for ( int i = 0; i < wheelColliders.Length; i++ )
-        {
-            wheelColliders[i].motorTorque = motorTorque; //动力
-        }
-
-        for( int i = 2; i < 4; i++ )
-        {
-            wheelColliders[i].brakeTorque = brakeTorque; //刹车
-        }
-        
-        for( int i = 0; i < 2; i++ )
-        {
-            wheelColliders[i].steerAngle = steerAngle;   //转向
-        }
-    }
-
-    private void SteerHelper()
-    {
-        //若车轮不着地，则不改变赛车方向
+        //四轮动力
         for ( int i = 0; i < 4; i++ )
         {
-            WheelHit wheelhit;
-            wheelColliders[i].GetGroundHit( out wheelhit );
-            if ( wheelhit.normal == Vector3.zero )
-            {
-                return;
-            }
+            m_wheelColliders[i].motorTorque = motorTorque / 4; 
         }
 
-        if ( Mathf.Abs( m_OldRotation - transform.eulerAngles.y ) < 10f )
+        //四轮刹车
+        for ( int i = 0; i < 4; i++ )
+        {
+            m_wheelColliders[i].brakeTorque = brakeTorque / 4; 
+        }
+
+        //前轮转向
+        for ( int i = 0; i < 2; i++ )
+        {
+            m_wheelColliders[i].steerAngle = steerAngle;   
+        }
+
+        SteerHelper();               //转向帮助
+        SyncWheelMeshes();           //同步车轮模型与碰撞器
+    }
+
+    //转向帮助
+    private void SteerHelper()
+    {
+        if( !OnGround ) { return; }
+        
+        //通过修改速度方向来提升转向灵敏度
+        if ( Mathf.Abs( m_OldRotation - transform.eulerAngles.y ) < 1f )
         {
             var turnAdjust = (transform.eulerAngles.y - m_OldRotation) * m_steerHelper;
             Quaternion velRotation = Quaternion.AngleAxis( turnAdjust, Vector3.up );
-            m_carRigidbody.velocity = velRotation * m_carRigidbody.velocity;
+            m_rgd.velocity = velRotation * m_rgd.velocity;
         }
 
         m_OldRotation = transform.eulerAngles.y;
     }
 
+    //检查是否有车轮侧滑
+    private bool CheckSidewaysSlip(WheelCollider wc, float slipLimit)
+    {
+        WheelHit hit;
+        wc.GetGroundHit( out hit );
+
+        // 车轮滑动超过滑动上限
+        if ( Mathf.Abs( hit.sidewaysSlip ) >= slipLimit )
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    //赛车受力调整
     private void AdjustForce()
     {
-        m_carRigidbody.centerOfMass = m_centorOfMass.transform.localPosition;
-
         //调整下压力
-        foreach ( var item in wheelColliders )
+        foreach ( var item in m_wheelColliders )
         {
             Vector3 pos;
             Quaternion quat;
 
             item.GetWorldPose( out pos, out quat );
 
-            m_carRigidbody.AddForceAtPosition( - 0.25f * m_downForce * transform.up, pos);
+            m_rgd.AddForceAtPosition( - 0.25f * m_downForce * transform.up, pos);
         }
-
-                 //下压力方向为赛车下方
         
+        AirForce = -m_airDrag * Velocity.sqrMagnitude* Velocity.normalized;     ////空气阻力正比于速度的平方
+
         //调整空气阻力
-        m_carRigidbody.AddForce( -m_airDrag * Velocity.sqrMagnitude * Velocity.normalized );    //空气阻力正比于速度的平方
+        m_rgd.AddForce( AirForce );    
         
         //调整车轮摩擦力
-        for(int i = 0; i < wheelColliders.Length; i++ )
+        for(int i = 0; i < m_wheelColliders.Length; i++ )
         {
-            var forward = wheelColliders[i].forwardFriction;
+            var forward = m_wheelColliders[i].forwardFriction;
             forward.stiffness = m_wheelFriction;
-            wheelColliders[i].forwardFriction = forward;
+            m_wheelColliders[i].forwardFriction = forward;
 
-            var sideways = wheelColliders[i].sidewaysFriction;
+            var sideways = m_wheelColliders[i].sidewaysFriction;
             sideways.stiffness = m_wheelFriction;
-            wheelColliders[i].sidewaysFriction = sideways;
+            m_wheelColliders[i].sidewaysFriction = sideways;
         }
     }
 
     //同步车轮模型与碰撞器
-    private void SyncWheels()
+    private void SyncWheelMeshes()
     {
-        for( int i = 0; i < wheelColliders.Length; i++ )
+        for( int i = 0; i < m_wheelColliders.Length; i++ )
         {
             Vector3 pos;
             Quaternion quat;
 
-            wheelColliders[i].GetWorldPose( out pos, out quat );        
-            WheelModels[i].transform.SetPositionAndRotation( pos, quat );
+            m_wheelColliders[i].GetWorldPose( out pos, out quat );        
+            m_wheelModels[i].transform.SetPositionAndRotation( pos, quat );
         }
-    }
-
-    private void OnGUI()
-    {
-        WheelDebug();
-    }
-
-    private void WheelDebug()
-    {
-        WheelHit hit;
-        wheelColliders[0].GetGroundHit( out hit );
-
-        //Debug.Log( hit.sidewaysSlip );
-
-        Debug.Log( hit.force );
     }
 }

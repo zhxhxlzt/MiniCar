@@ -9,7 +9,7 @@ public class SceneController : MonoBehaviour {
 
     private void Start()
     {
-        //userData = Resources.Load<UserData>( "UserDatum/UserData" );
+        userData = Resources.Load<UserData>( "UserDatum/UserData" );
     }
 
     //载入场景

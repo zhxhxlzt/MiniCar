@@ -5,15 +5,22 @@ using UnityEngine.UI;
 
 public class LevelSlot : MonoBehaviour {
 
-    [SerializeField] private LevelInfo m_levelInfo;      //当前关卡
-    [SerializeField] private Text m_timeUsage;
-    [SerializeField] private RawImage m_lockImage;       //锁定图片
-    [SerializeField] private RawImage m_finishImage;     //完成图片
-    [SerializeField] private List<LevelSlot> m_LevelSlotList;   //子关卡
+    [SerializeField] private Sprite m_unlocked;                 //解锁sprite
+    [SerializeField] private Sprite m_locked;                   //锁定sprite
+    [SerializeField] private Sprite m_passed;                   //通过sprite
+    private Image image;
 
+    [SerializeField] private LevelInfo m_levelInfo;             //当前关卡数据
+    [SerializeField] private Text m_timeUsage;                  //闯关时间显示Text
+    [SerializeField] private List<LevelSlot> m_levelSlotList;   //子关卡节点
+
+    //初始化
     private void Start()
     {
-        var allText = GetComponentsInChildren<Text>();  //获取所有子Text组件
+        image = GetComponent<Image>();
+
+        //获取所有子Text组件
+        Text[] allText = GetComponentsInChildren<Text>();  
 
         //查找其中名为TimeUsage的Text组件
         foreach ( var item in allText )
@@ -28,49 +35,35 @@ public class LevelSlot : MonoBehaviour {
                 m_timeUsage = item;
             }
         }
-
-        var allRawImage = GetComponentsInChildren<RawImage>();  //获取所有子RawImage组件
-
-        //查找其中名为LockImag，FinishImg的组件
-        foreach ( var item in allRawImage )
-        {
-            if( m_lockImage != null && m_finishImage != null )
-            {
-                break;
-            }
-
-            if( item.name == "LockImg" )
-            {
-                m_lockImage = item;
-                continue;
-            }
-
-            if( item.name == "FinishImg" )
-            {
-                m_finishImage = item;
-                continue;
-            }
-        }
     }
 
     //获取当前关卡信息
     public LevelInfo CurLevelInfo { get { return m_levelInfo; } }
 
-    //设置锁定图片透明度
-    public void SetLockImageAlpha(float a)
+    //设置button图片
+    private void SetButtonImage()
     {
-        SetImageAlpha( m_lockImage, a );
+        if(m_levelInfo.Locked)
+        {
+            image.sprite = m_locked;
+            return;
+        }
+
+        if(m_levelInfo.Passed)
+        {
+            image.sprite = m_passed;
+        }
+        else
+        {
+            image.sprite = m_unlocked;
+        }
     }
 
-    //设置完成图片透明度
-    public void SetFinishImageAlpha(float a)
+    //设置闯关用时
+    private void SetTimeUsage()
     {
-        SetImageAlpha( m_finishImage, a );
-    }
-
-    public void SetTimeUsage()
-    {
-        if(CurLevelInfo.Passed)
+        //如果通过关卡，显示最佳通关时间记录，否则关闭时间框
+        if ( CurLevelInfo.Passed) 
         {
             m_timeUsage.enabled = true;
             m_timeUsage.text = "用时：" + m_levelInfo.TimeUsage.ToString() + "秒";
@@ -82,18 +75,12 @@ public class LevelSlot : MonoBehaviour {
         }
     }
 
-    //设置图片透明度
-    private void SetImageAlpha(RawImage img, float a)
-    {
-        var tempColor = img.color;
-
-        tempColor.a = a;
-        img.color = tempColor;
-    }
-
+    //界面刷新
     private void OnGUI()
     {
         CheckUnlock();
+        SetButtonImage();
+        SetTimeUsage();
     }
 
     //存储子关卡关系
@@ -116,11 +103,12 @@ public class LevelSlot : MonoBehaviour {
     {
         List<LevelInfo> temp = new List<LevelInfo>();
 
-        foreach ( var item in m_LevelSlotList )
+        //生成levelInfo链表
+        foreach ( var item in m_levelSlotList )
         {
             temp.Add( item.CurLevelInfo );
         }
 
-        CurLevelInfo.SetNext( temp );   //设置子关系表
+        CurLevelInfo.SetNext( temp );   //设置子关系链表表
     }
 }
