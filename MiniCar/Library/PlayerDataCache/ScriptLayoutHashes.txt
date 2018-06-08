@@ -1,6 +1,6 @@
 WindowsStandalone
 PlayerPath?
-E:/GitHub/MiniCar/MiniCar/ExecutableGame/第七次迭代/第七次迭代.exe
+E:/GitHub/MiniCar/MiniCar/ExecutableGame/第八次迭代/第八次迭代.exe
 SceneListBegin?
 Assets/Scenes/MainScene.unity
 Assets/Scenes/Start_0.unity

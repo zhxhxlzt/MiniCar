@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "LevelInfo", menuName = "Level/Info")]
+[Serializable]
 public class LevelInfo : ScriptableObject {
 
     [SerializeField] private bool m_passed;     //当前关卡是否已通过
@@ -23,12 +24,11 @@ public class LevelInfo : ScriptableObject {
     //设置子关卡
     public void SetNext( List<LevelInfo> next )
     {
-        if( m_next.Equals(next) )
+        if ( m_next.Equals( next ) )
         {
             return;
         }
-
-        //m_next = new List<LevelInfo>( next );
+        
         m_next = next;
     }
     
@@ -51,7 +51,7 @@ public class LevelInfo : ScriptableObject {
     //解锁子关卡
     public void UnlockNext()
     {
-        if( m_next.Count != 0 )
+        if ( m_next.Count != 0 )
         {
             foreach ( var item in m_next )
             {
@@ -60,18 +60,25 @@ public class LevelInfo : ScriptableObject {
         }
     }
 
-    public void Save()
+    //获取数据
+    public void CopyFrom( LevelInfoAccess data)
     {
-        PlayerPrefs.SetString( name + "passed", Passed.ToString() );
-        PlayerPrefs.SetString( name + "locked", Locked.ToString() );
-        PlayerPrefs.SetString( name + "timeUsage", TimeUsage.ToString() );
+        Debug.Log( "读取一次" );
+        m_passed = data.m_passed;
+        m_locked = data.m_locked;
+        m_isBegin = data.m_isBegin;
+        m_isEnd = data.m_isEnd;
+        m_timeUsage = data.m_timeUsage;
     }
 
-    public void Load()
+    //设置数据
+    public void CopyTo( ref LevelInfoAccess data )
     {
-        Passed = Convert.ToBoolean( PlayerPrefs.GetString( name + "passed" ) );
-        Locked = Convert.ToBoolean( PlayerPrefs.GetString( name + "locked" ) );
-        TimeUsage = (float)Convert.ToDouble( PlayerPrefs.GetString( name + "timeUsage" ) );
+        data.m_passed = m_passed;
+        data.m_locked = m_locked;
+        data.m_isBegin = m_isBegin;
+        data.m_isEnd = m_isEnd;
+        data.m_timeUsage = m_timeUsage;
     }
 
     //重置关卡

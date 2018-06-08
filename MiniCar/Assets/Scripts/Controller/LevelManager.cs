@@ -19,6 +19,7 @@ public class LevelManager : MonoBehaviour {
     {
         m_sceneController = FindObjectOfType<SceneController>();
         FindAllLevelSlots();
+        m_levelInfoList.Load();     //从磁盘加载关卡信息
     }
 
     //如果关卡已解锁，则载入当前关卡
