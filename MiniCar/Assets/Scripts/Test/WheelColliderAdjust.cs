@@ -31,15 +31,12 @@ public struct Friction
             extremumValue = ExtremumValue,
             asymptoteSlip = AsymptoteSlip,
             asymptoteValue = AsymptoteValue,
-            //stiffness = Stiffness
         };
     }
 }
 
 [CreateAssetMenu(fileName = "WheelColliderAdjust")]
 public class WheelColliderAdjust : ScriptableObject {
-
     public Friction ForwardFriction;
     public Friction SidewaysFriction;
-
 }

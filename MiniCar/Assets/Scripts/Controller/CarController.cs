@@ -9,6 +9,7 @@ public class CarController : MonoBehaviour {
     [SerializeField] private InputHandler m_input;    //输入控制器
     [SerializeField] private UserCarParts m_parts; //当前赛车配置
     [SerializeField] private Rigidbody m_rgd;         //赛车刚体RigidBody
+    [SerializeField] private CarAudio m_carAudio;     //赛车音效控制器
 
     [Header( "=== 车轮模型 ===" )]
     [SerializeField] private GameObject[] m_wheelModels;
@@ -28,10 +29,15 @@ public class CarController : MonoBehaviour {
     
     [Header( "=== 赛车状态 ===" )]
     [SerializeField] [Range( 0, 1 )] private float m_slipLimit = 0.8f;    //侧滑判定上限
+    [SerializeField] [Range( 3, 10 )] private float m_slipVelocityLimit = 5f;   //侧滑时速度下限
+    [SerializeField] [Range( 1000, 10000 )] private float m_collisionImpulseLimit;
     [SerializeField] [Range( 0, 1 )] private float m_steerHelper;       //转向帮助
 
     [Header("=== 用作函数静态变量 ===")]
     [SerializeField] private float m_OldRotation;    //记录赛车旋转角
+    [SerializeField] private Vector3 oldVelocity;
+    [SerializeField] private Transform m_triggleBox;
+    
 
     //是否处于驾驶状态
     public bool Driveable = true;
@@ -41,6 +47,8 @@ public class CarController : MonoBehaviour {
 
     //赛车速度
     public Vector3 Velocity { get { return m_rgd.velocity; } }
+
+    public Vector3 Acceleration { get; private set; }
 
     //空气阻力
     public Vector3 AirForce{ get; private set; }
@@ -90,6 +98,34 @@ public class CarController : MonoBehaviour {
         return torque;
     }
 
+    //计算加速度
+    private void CalAccel()
+    {
+        Acceleration = (Velocity - oldVelocity) / Time.fixedDeltaTime;
+        oldVelocity = Velocity;
+    }
+
+    private void PlayCarAudio()
+    {
+        var ratio = Velocity.magnitude / MaxSpeed;
+        float pitch = Mathf.Lerp( 1f, 2.5f, ratio );   //获取要播放声音的pitch，赛车速度越快,pitch越高
+        Debug.Log( pitch );
+
+        m_carAudio.PlayEngineSound( pitch );
+
+        //如果侧滑，则播放侧滑音效
+        m_carAudio.PlaySkidSound(Sliped && Velocity.magnitude > 5);
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        float factor = 0.6f * collision.impulse.magnitude / 10000;
+        if( collision.impulse.magnitude > m_collisionImpulseLimit )
+        {
+            m_carAudio.PlayCollideSound( factor );
+        }
+    }
+
     //初始化
     private void Start()
     {
@@ -104,9 +140,12 @@ public class CarController : MonoBehaviour {
     //物理循环
     private void FixedUpdate()
     {
+        CalAccel();             //计算加速度
         AdjustCarAttribute();   //调整赛车属性
         AdjustForce();          //赛车受力调整
         DriveControl();         //驾驶控制
+        PlayCarAudio();         //播放赛车音效
+
     }
     
     //根据赛车各零件调整赛车属性

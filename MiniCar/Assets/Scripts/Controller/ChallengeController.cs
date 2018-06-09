@@ -28,6 +28,7 @@ public class ChallengeController : MonoBehaviour {
     [SerializeField] private SceneController m_sceneController; //场景控制器
     [SerializeField] private LevelHud m_levelHud;               //关卡HUD
     [SerializeField] private LevelInfoList m_levelInfoList;     //所有关卡信息表
+    [SerializeField] private AudioController m_audioController; //音效控制器
     private CheckPointController m_checkPointController;    //检查点控制器
 
     //公有获取只读数据方法，
@@ -65,6 +66,23 @@ public class ChallengeController : MonoBehaviour {
         //Debug.Log( "场景名为：" + m_sceneController.CurrentSceneName );
     }
 
+    //暂停开关
+    public void PauseSwitch()
+    {
+        if( m_challengeState == ChallengeState.paused )
+        {
+            Time.timeScale = 1f;
+            m_challengeState = ChallengeState.underway;
+            m_audioController.MuteSwitch();
+        }
+        else if( m_challengeState == ChallengeState.underway)
+        {
+            Time.timeScale = 0f;
+            m_challengeState = ChallengeState.paused;
+            m_audioController.MuteSwitch();
+        }
+    }
+
     //修改闯关状态
     public void SetChallengeState( int state )
     {
@@ -85,21 +103,6 @@ public class ChallengeController : MonoBehaviour {
             case 4:
                 m_challengeState = ChallengeState.succeed;
                 break;
-        }
-    }
-
-    //暂停与恢复功能
-    public void PauseAndResume()
-    {
-        if( m_challengeState == ChallengeState.underway )
-        {
-            Time.timeScale = 0f;
-            m_challengeState = ChallengeState.paused;
-        }
-        else if( m_challengeState == ChallengeState.paused )
-        {
-            Time.timeScale = 1f;
-            m_challengeState = ChallengeState.underway;
         }
     }
 
@@ -132,7 +135,7 @@ public class ChallengeController : MonoBehaviour {
             //开始闯关状态
             if ( m_challengeState == ChallengeState.begin )
             {
-                m_inputHandler.MoveInput = false;              //在倒计时阶段关闭赛车控制
+                m_inputHandler.handleCarInput = false;              //在倒计时阶段关闭赛车控制
                 m_levelHud.SetCountDown(CountDown);             //开始倒计时协程
                 yield return new WaitForSeconds( m_countDown ); //等待倒计时结束
                 m_challengeState = ChallengeState.underway;     //进入闯关中状态
@@ -141,7 +144,7 @@ public class ChallengeController : MonoBehaviour {
             //闯关进行状态
             if ( m_challengeState == ChallengeState.underway )
             {
-                m_inputHandler.MoveInput = true;               //开启赛车控制
+                m_inputHandler.handleCarInput = true;               //开启赛车控制
 
                 //若闯关用时大于时间限制，则闯关失败
                 if ( m_timeCount > m_timeLimit )
@@ -160,14 +163,15 @@ public class ChallengeController : MonoBehaviour {
             if ( m_challengeState == ChallengeState.paused )
             {
                 //m_inputHandler.MoveInput = false;     //在此状态测试赛车功能
+                Debug.Log( "游戏暂停中" );
             }
             
             if ( m_challengeState == ChallengeState.failed )
             {
-                m_levelHud.SetResultLabel( "闯关失败！你真是个菜鸡！" );
+                m_levelHud.SetAlertLabel( "闯关失败！" );
 
-                m_inputHandler.MoveInput = false;   //禁用输入
-
+                m_inputHandler.handleCarInput = false;   //禁用输入
+                m_audioController.FinishSnapShot(); //设置结束时的音效
                 break;
             }
 
@@ -178,11 +182,12 @@ public class ChallengeController : MonoBehaviour {
                 info.Passed = true;     //设置通过当前关卡
                 info.SetTimeUsage( Convert.ToInt32( TimeCount ) );      //设置用时
 
-                m_levelHud.SetResultLabel( "  闯关成功！\n" +
+                m_levelHud.SetAlertLabel( "  闯关成功！\n" +
                                            "本次用时：" + Convert.ToInt32( TimeCount ) + "秒\n" +
                                            "最佳记录: " + Convert.ToInt32( info.TimeUsage ) + "秒" );
 
-                m_inputHandler.MoveInput = false;   //禁用输入
+                m_inputHandler.handleCarInput = false;   //禁用输入
+                m_audioController.FinishSnapShot(); //设置结束时的音效
 
                 break;
             }

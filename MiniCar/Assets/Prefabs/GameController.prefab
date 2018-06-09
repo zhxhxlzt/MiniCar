@@ -22,7 +22,8 @@ GameObject:
   - component: {fileID: 114918312197605434}
   - component: {fileID: 114385590280082214}
   - component: {fileID: 114512220459045708}
-  - component: {fileID: 114785169462092410}
+  - component: {fileID: 114956374397067764}
+  - component: {fileID: 114776028640898600}
   m_Layer: 0
   m_Name: GameController
   m_TagString: GameController
@@ -74,9 +75,10 @@ MonoBehaviour:
   m_challengeState: 0
   m_inputHandler: {fileID: 114918312197605434}
   m_sceneController: {fileID: 114385590280082214}
-  m_levelHud: {fileID: 114785169462092410}
+  m_levelHud: {fileID: 0}
   m_levelInfoList: {fileID: 11400000, guid: 611384128bec17c468ed6622fb27a607, type: 2}
---- !u!114 &114785169462092410
+  m_audioController: {fileID: 114956374397067764}
+--- !u!114 &114776028640898600
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -87,15 +89,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58c6aa673a1055b40b807b11080fa9aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_carController: {fileID: 0}
-  m_challengeController: {fileID: 114512220459045708}
-  PauseButton: {fileID: 0}
-  ReturnButton: {fileID: 0}
+  m_carCtrl: {fileID: 0}
+  m_challengeCtrl: {fileID: 114512220459045708}
+  m_inputHandler: {fileID: 114918312197605434}
+  SystemMenu: {fileID: 0}
   CountDownLabel: {fileID: 0}
   TimeCountLabel: {fileID: 0}
   TurnCountLabel: {fileID: 0}
   SpeedLabel: {fileID: 0}
   ResultLabel: {fileID: 0}
+  AlertLabel: {fileID: 0}
+  MenuButton: {fileID: 0}
+  m_showMenu: 0
 --- !u!114 &114918312197605434
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -107,7 +112,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 289cf6bcc60d65e458e28aa2ed6594ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MoveInput: 1
+  handleCarInput: 1
+  handleUIInput: 1
   accel: 0
   steer: 0
   brake: 0
+  escape: 0
+--- !u!114 &114956374397067764
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1113645948891240}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30a74ece92c131e4f9e247c8f34a12ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mute: {fileID: 245318159667310564, guid: f6c4768897c71bb42b8ba705f5cc88ad, type: 2}
+  unMute: {fileID: 24500006, guid: f6c4768897c71bb42b8ba705f5cc88ad, type: 2}
+  finish: {fileID: 245998838427801880, guid: f6c4768897c71bb42b8ba705f5cc88ad, type: 2}

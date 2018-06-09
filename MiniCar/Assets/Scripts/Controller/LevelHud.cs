@@ -9,23 +9,31 @@ public class LevelHud : MonoBehaviour {
     [Header( "=== 外部控制器 ===" )]
     [SerializeField] private CarController m_carCtrl;               //赛车控制器
     [SerializeField] private ChallengeController m_challengeCtrl;   //闯关控制器
+    [SerializeField] private InputHandler m_inputHandler;           //输入控制器
+    
 
     [Header( "=== UI组件 ===" )]
+    [SerializeField] private CanvasGroup SystemMenu;   //暂停菜单
     [SerializeField] private Text CountDownLabel;    //倒计时Text
     [SerializeField] private Text TimeCountLabel;    //计时Text
     [SerializeField] private Text TurnCountLabel;    //计圈Text
     [SerializeField] private Text SpeedLabel;        //速度Text
     [SerializeField] private Text ResultLabel;       //结果Text
+    [SerializeField] private Text AlertLabel;        //警告Text
+    [SerializeField] private Button MenuButton;      //菜单button
+
+    [Header( "=== 控制参数 ===" )]
+    [SerializeField] private bool m_showMenu;
 
     private void Start()
     {
         m_carCtrl = FindObjectOfType<CarController>();
         m_challengeCtrl = FindObjectOfType<ChallengeController>();
-
+        m_inputHandler = FindObjectOfType<InputHandler>();
         FindHUD();
     }
 
-    private void OnGUI()
+    private void Update()
     {
         ShowHUD();
     }
@@ -33,11 +41,14 @@ public class LevelHud : MonoBehaviour {
     //查找UI组件
     private void FindHUD()
     {
+        SystemMenu = FindUIComponent<CanvasGroup>( "SystemMenu" );
         CountDownLabel = FindUIComponent<Text>( "CountDown" );
         TimeCountLabel = FindUIComponent<Text>( "TimeCount" );
         TurnCountLabel = FindUIComponent<Text>( "TurnCount" );
         SpeedLabel = FindUIComponent<Text>( "Speed" );
         ResultLabel = FindUIComponent<Text>( "Result" );
+        AlertLabel = FindUIComponent<Text>( "Alert" );
+        MenuButton = FindUIComponent<Button>( "MenuButton" );
     }
 
     //查找UI组件
@@ -52,19 +63,42 @@ public class LevelHud : MonoBehaviour {
         SetTurnCountLabel();
         SetTimeCountLabel();
         SetSpeedLabel();
+        SetMenu();
     }
 
-    //设置结果信息
-    public void SetResultLabel(string info)
+    public void ShowMenu()
     {
-        ResultLabel.enabled = true;
-        ResultLabel.text = info;
+        m_showMenu = !m_showMenu;
+
+        if ( m_showMenu )
+        {
+            Debug.Log( "ESC" );
+            if ( SystemMenu.alpha == 0 )
+            {
+                SystemMenu.alpha = 1;
+                SystemMenu.blocksRaycasts = true;
+            }
+            else
+            {
+                SystemMenu.alpha = 0;
+                SystemMenu.blocksRaycasts = false;
+            }
+
+            m_showMenu = !m_showMenu;
+        }
+    }
+    
+    //设置结果信息
+    public void SetAlertLabel(string info)
+    {
+        AlertLabel.enabled = true;
+        AlertLabel.text = info;
     }
 
     //警告错误方向
     public void SetWrongDirection(int times)
     {
-        SetResultLabel( "方向错误！" );
+        SetAlertLabel( "方向错误！" );
         StopCoroutine("BlinkResult");
         StartCoroutine( BlinkResult( times ) );
     }
@@ -78,6 +112,14 @@ public class LevelHud : MonoBehaviour {
         }
 
         StartCoroutine( BeignCountDown( time ) );
+    }
+
+    private void SetMenu()
+    {
+        if( m_inputHandler.Escape == true )
+        {
+            MenuButton.onClick.Invoke();
+        }
     }
 
     //设置圈数UI
