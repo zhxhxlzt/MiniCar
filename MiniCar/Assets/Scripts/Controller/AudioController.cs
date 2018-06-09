@@ -8,6 +8,12 @@ public class AudioController : MonoBehaviour {
     [SerializeField] private AudioMixerSnapshot mute, unMute, finish;
     private bool m_muted = false;
 
+    private void Start()
+    {
+        m_muted = false;
+        unMute.TransitionTo( 0f );
+    }
+
     public void MuteSwitch()
     {
         if( m_muted = !m_muted)
