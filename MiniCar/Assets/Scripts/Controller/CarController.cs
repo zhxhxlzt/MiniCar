@@ -5,11 +5,16 @@ using System;
 
 public class CarController : MonoBehaviour {
 
+    public enum CarState { forward, backward, idle };
+
+    public delegate void Collid(float factor);
+
+    public event Collid OnCollid;       //发送碰撞事件
+
     [Header( "=== 外部控制器 ===" )]
     [SerializeField] private InputHandler m_input;    //输入控制器
-    [SerializeField] private UserCarParts m_parts; //当前赛车配置
-    [SerializeField] private Rigidbody m_rgd;         //赛车刚体RigidBody
-    [SerializeField] private CarAudio m_carAudio;     //赛车音效控制器
+    [SerializeField] private UserCarParts m_parts;    //当前赛车配置
+    [SerializeField] private Rigidbody m_rigidbody;   //赛车刚体RigidBody
 
     [Header( "=== 车轮模型 ===" )]
     [SerializeField] private GameObject[] m_wheelModels;
@@ -19,6 +24,7 @@ public class CarController : MonoBehaviour {
 
     [Header( "=== 赛车属性 ===" )]
     [SerializeField] private float m_maxSpeed;              //最高速度 m/s
+    [SerializeField] private float m_maxReverseSpeed;       //最高倒车速度
     [SerializeField] private float m_maxMotorTorque;        //最高动力扭矩
     [SerializeField] private float m_maxSteer;              //最大转向角
     [SerializeField] private float m_maxBrakeTorque;        //最大制动扭矩
@@ -26,28 +32,29 @@ public class CarController : MonoBehaviour {
     [SerializeField] private float m_airDrag;               //空气阻力
     [SerializeField] private float m_downForce;             //下压力
     [SerializeField] private GameObject m_centorOfMass;     //重心
-    
+    [SerializeField] private int m_maxGear = 5;             //最高档位
+    [SerializeField] private int m_curGear = 0;             //初始为0
+    [SerializeField] private float m_gearFactor;            //档位因数
+    [SerializeField] private float m_curTorque;             //当前档位
+
     [Header( "=== 赛车状态 ===" )]
-    [SerializeField] [Range( 0, 1 )] private float m_slipLimit = 0.8f;    //侧滑判定上限
-    [SerializeField] [Range( 3, 10 )] private float m_slipVelocityLimit = 5f;   //侧滑时速度下限
-    [SerializeField] [Range( 1000, 10000 )] private float m_collisionImpulseLimit;
-    [SerializeField] [Range( 0, 1 )] private float m_steerHelper;       //转向帮助
+    [SerializeField] [Range( 0, 1 )] private float m_slipLimit = 0.8f;              //侧滑判定上限
+    [SerializeField] [Range( 1000, 10000 )] private float m_collisionImpulseLimit = 1500f;  //产生碰撞音效的力大小限定
+    [SerializeField] [Range( 0, 1 )] private float m_steerHelper = 0.25f;                   //转向帮助
+    [SerializeField] [Range( 0, 0.1f )] private float m_rotateHelper = 0.05f;               //漂移帮助
+    [SerializeField] [Range( 0, 20 )] private float m_conerSpeed = 10;                      //过弯速度判定
 
     [Header("=== 用作函数静态变量 ===")]
-    [SerializeField] private float m_OldRotation;    //记录赛车旋转角
-    [SerializeField] private Vector3 oldVelocity;
-    [SerializeField] private Transform m_triggleBox;
-    
-
-    //是否处于驾驶状态
-    public bool Driveable = true;
-    
+    [SerializeField] private float m_OldRotation;           //记录赛车旋转角
+    [SerializeField] private Vector3 t_preFrameVelocity;    //上一帧速度
+   
     //赛车最大速度
     public float MaxSpeed { get { return m_maxSpeed; } }
 
     //赛车速度
-    public Vector3 Velocity { get { return m_rgd.velocity; } }
+    public Vector3 Velocity { get { return m_rigidbody.velocity; } }
 
+    //赛车加速度
     public Vector3 Acceleration { get; private set; }
 
     //空气阻力
@@ -101,35 +108,26 @@ public class CarController : MonoBehaviour {
     //计算加速度
     private void CalAccel()
     {
-        Acceleration = (Velocity - oldVelocity) / Time.fixedDeltaTime;
-        oldVelocity = Velocity;
+        Acceleration = (Velocity - t_preFrameVelocity) / Time.fixedDeltaTime;
+        t_preFrameVelocity = Velocity;
     }
-
-    private void PlayCarAudio()
-    {
-        var ratio = Velocity.magnitude / MaxSpeed;
-        float pitch = Mathf.Lerp( 1f, 2.5f, ratio );   //获取要播放声音的pitch，赛车速度越快,pitch越高
-        Debug.Log( pitch );
-
-        m_carAudio.PlayEngineSound( pitch );
-
-        //如果侧滑，则播放侧滑音效
-        m_carAudio.PlaySkidSound(Sliped && Velocity.magnitude > 5);
-    }
-
+    
+    //发生碰撞时，检测是否达到碰撞要求
     private void OnCollisionEnter(Collision collision)
     {
-        float factor = 0.6f * collision.impulse.magnitude / 10000;
-        if( collision.impulse.magnitude > m_collisionImpulseLimit )
+        if ( collision.impulse.magnitude > m_collisionImpulseLimit )
         {
-            m_carAudio.PlayCollideSound( factor );
+            if ( OnCollid != null )
+            {
+                OnCollid(SpeedFactor);
+            }
         }
     }
-
+    
     //初始化
     private void Start()
     {
-        m_rgd = GetComponent<Rigidbody>();     //获取刚体
+        m_rigidbody = GetComponent<Rigidbody>();     //获取刚体
         m_input = GameObject.FindGameObjectWithTag( "GameController" ).GetComponent<InputHandler>(); //获取输入组件
         m_parts = Resources.Load<UserData>( "UserDatum/UserData" ).currentCar;
 
@@ -140,12 +138,10 @@ public class CarController : MonoBehaviour {
     //物理循环
     private void FixedUpdate()
     {
-        CalAccel();             //计算加速度
         AdjustCarAttribute();   //调整赛车属性
         AdjustForce();          //赛车受力调整
+        CalCurGear();           //计算当前档位
         DriveControl();         //驾驶控制
-        PlayCarAudio();         //播放赛车音效
-
     }
     
     //根据赛车各零件调整赛车属性
@@ -161,7 +157,7 @@ public class CarController : MonoBehaviour {
             }
         }
 
-        m_rgd.centerOfMass = m_centorOfMass.transform.localPosition;   //设置赛车重心
+        m_rigidbody.centerOfMass = m_centorOfMass.transform.localPosition;   //设置赛车重心
         
         //motor零件属性
         m_maxSpeed = (2f * Mathf.PI * m_wheelColliders[0].radius) * m_parts.motor.RPM / 60f;//最大速度(m/s) = 车轮周长 * rpm / 60
@@ -175,28 +171,106 @@ public class CarController : MonoBehaviour {
         m_airDrag = m_parts.cover.AirDrag;               //空气阻力
         m_downForce = m_parts.cover.DownForce;           //下压力
     }
+
+    //赛车速度档控制
+    public void CalCurGear()
+    {
+        if ( GearFactor * m_maxGear > m_curGear && m_curGear <= m_maxGear )
+        {
+            ++m_curGear;
+        }
+
+        if ( GearFactor * m_maxGear < m_curGear && m_curGear > 1 )
+        {
+            --m_curGear;
+        }
+    }
+
+    //赛车当前档位因数
+    public float GearFactor
+    {
+        get
+        {
+            m_gearFactor = Mathf.Sqrt( SpeedFactor );
+
+            return m_gearFactor;
+        }
+    }
     
+    //速度因数
+    public float SpeedFactor
+    {
+        get
+        {
+            return Velocity.magnitude / MaxSpeed;
+        }
+    }
+
+    //驾驶状态
+    public CarState GetCarState()
+    {
+        if ( Velocity.magnitude <= 0.1f )
+        {
+            return CarState.idle;
+        }
+
+        if ( Vector3.Angle( Velocity, -transform.forward ) < 30f )
+        {
+            return CarState.backward;
+        }
+        else
+        {
+            return CarState.forward;
+        }
+    }
+    
+    //如果超过最高速度，则施加相反方向的速度
+    private void CapMaxSpeed()
+    {
+        if( GetCarState() == CarState.backward )
+        {
+            float offset = Velocity.magnitude - m_maxReverseSpeed;
+
+            if ( offset > 0 )
+            {
+                m_rigidbody.AddForce( -Velocity * offset, ForceMode.Acceleration );
+            }
+        }
+
+        else
+        {
+            float offset= Velocity.magnitude - MaxSpeed;
+
+            //如果正向行驶超过最大正向速度
+            if ( offset > 0 )
+            {
+                m_rigidbody.AddForce( -Velocity * offset, ForceMode.Acceleration );
+            }
+        }
+        
+    }
+
     //驾驶控制
     private void DriveControl()
     {
-        //非驾驶状态不接受移动输入命令控制
-        if ( !Driveable )
-        {
-            Debug.Log( "不能驾驶！" );
-            return;
-        }
-
         //各车轮动力扭矩,超过最高速度则为0
-        float motorTorque = m_input.Accel * 
-                            (( m_rgd.velocity.magnitude <= m_maxSpeed ) ? m_maxMotorTorque : 0);   
+        float targetMotorTorque = m_input.Accel * m_maxMotorTorque * Mathf.Clamp01( m_maxGear - m_curGear * 0.5f );
         
         float brakeTorque = m_input.Brake * m_maxBrakeTorque;   //各车轮制动扭矩
-        float steerAngle = m_maxSteer * m_input.Steer;          //转向角
+        float steerAngle = m_maxSteer * m_input.Steer * Mathf.Clamp01(1 - SpeedFactor * 0.25f);   //转向角
+
+        if ( targetMotorTorque == 0 || 
+            (GetCarState() == CarState.forward && targetMotorTorque < 0) || 
+            GetCarState() == CarState.backward && targetMotorTorque > 0 )  
+        {
+            brakeTorque += m_maxBrakeTorque * 0.15f;
+            targetMotorTorque = 0;
+        }
 
         //四轮动力
         for ( int i = 0; i < 4; i++ )
         {
-            m_wheelColliders[i].motorTorque = motorTorque / 4; 
+            m_wheelColliders[i].motorTorque = targetMotorTorque / 4; 
         }
 
         //四轮刹车
@@ -211,6 +285,8 @@ public class CarController : MonoBehaviour {
             m_wheelColliders[i].steerAngle = steerAngle;   
         }
 
+        CalAccel();                  //计算加速度
+        CapMaxSpeed();               //超速锁定
         SteerHelper();               //转向帮助
         SyncWheelMeshes();           //同步车轮模型与碰撞器
     }
@@ -219,13 +295,19 @@ public class CarController : MonoBehaviour {
     private void SteerHelper()
     {
         if( !OnGround ) { return; }
+
+        if( Velocity.magnitude < m_conerSpeed )
+        {
+            m_rigidbody.AddTorque( Vector3.up * m_rotateHelper * m_input.Steer, ForceMode.VelocityChange );
+        }
         
+
         //通过修改速度方向来提升转向灵敏度
-        if ( Mathf.Abs( m_OldRotation - transform.eulerAngles.y ) < 1f )
+        if ( Mathf.Abs( m_OldRotation - transform.eulerAngles.y ) < 10f )
         {
             var turnAdjust = (transform.eulerAngles.y - m_OldRotation) * m_steerHelper;
             Quaternion velRotation = Quaternion.AngleAxis( turnAdjust, Vector3.up );
-            m_rgd.velocity = velRotation * m_rgd.velocity;
+            m_rigidbody.velocity = velRotation * m_rigidbody.velocity;
         }
 
         m_OldRotation = transform.eulerAngles.y;
@@ -259,13 +341,13 @@ public class CarController : MonoBehaviour {
 
             item.GetWorldPose( out pos, out quat );
 
-            m_rgd.AddForceAtPosition( - 0.25f * m_downForce * transform.up, pos);
+            m_rigidbody.AddForceAtPosition( - 0.25f * m_downForce * transform.up, pos);
         }
         
         AirForce = -m_airDrag * Velocity.sqrMagnitude* Velocity.normalized;     ////空气阻力正比于速度的平方
 
         //调整空气阻力
-        m_rgd.AddForce( AirForce );    
+        m_rigidbody.AddForce( AirForce );    
         
         //调整车轮摩擦力
         for(int i = 0; i < m_wheelColliders.Length; i++ )
@@ -278,15 +360,17 @@ public class CarController : MonoBehaviour {
             sideways.stiffness = m_wheelFriction;
             m_wheelColliders[i].sidewaysFriction = sideways;
         }
+        
     }
 
-    //同步车轮模型与碰撞器
+    //同步车轮模型与碰撞器www
     private void SyncWheelMeshes()
     {
-        for( int i = 0; i < m_wheelColliders.Length; i++ )
+        for( int i = 0; i < m_wheelColliders.Length; ++i )
         {
             Vector3 pos;
             Quaternion quat;
+
 
             m_wheelColliders[i].GetWorldPose( out pos, out quat );        
             m_wheelModels[i].transform.SetPositionAndRotation( pos, quat );

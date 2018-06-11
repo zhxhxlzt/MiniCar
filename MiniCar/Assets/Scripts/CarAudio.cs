@@ -3,39 +3,82 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
 
+
 /// <summary>
 /// 赛车音效控制
 /// </summary>
+[RequireComponent(typeof(AudioSource))]
 public class CarAudio : MonoBehaviour {
-    [SerializeField] private AudioSource m_move;            //引擎音效
-    [SerializeField] private AudioSource m_skid;            //打滑音效
-    [SerializeField] private AudioSource m_collide;         //碰撞音效
+    [SerializeField] private AudioMixerGroup carGroup;
+    [SerializeField] private CarController m_carcontroller;
+    [SerializeField] private AudioSource m_collsion;         //碰撞音效
+    private AudioClip col;
 
-    //播放引擎音效
-    public void PlayEngineSound( float pitch )
+    //播放碰撞音效
+    public void PlayCollideSound(float speedFactor)
     {
-        m_move.pitch = pitch;
+        m_collsion.Stop();
+        m_collsion.volume = speedFactor;
+        m_collsion.Play();
+    }
+    
+    public AudioClip lowAccelClip;                  // 音效
+
+    public float minVolume = 0.3f;             // 调整pitch因数
+    public float maxVolume = 1f;              // 调整高速音效pitch因数
+    public float minPitch = 0.8f;                  // pitch下限
+    public float maxPitch = 1.5f;                  // pitch上限
+
+    //用于生成audio source
+    private AudioSource m_LowAccel;
+
+    private CarController m_CarController;      //赛车控制器
+
+    private void Start()
+    {
+        m_carcontroller.OnCollid += PlayCollideSound;
+        StartSound();
+    }
+    //根据音效种类构建audio source
+    private void StartSound()
+    {
+        //获取赛车控制器
+        m_CarController = GetComponent<CarController>();
+
+        // 建立音源
+        m_LowAccel = SetUpEngineAudioSource( lowAccelClip );
+        
+    }
+    private void Update()
+    {
+        
+        PlayEngineAudio();
     }
 
-    //播放打滑音效
-    public void PlaySkidSound( bool isSkid )
+    private void PlayEngineAudio()
     {
-        //如果赛车没有播放音效，播放音效
-        if( isSkid && !m_skid.isPlaying )
-        {
-            m_skid.Play();
-        }
+        float volume = Mathf.Lerp( minVolume, maxVolume, m_CarController.SpeedFactor );
+        float pitch = Mathf.Lerp( minPitch, maxPitch, Mathf.Pow( m_CarController.SpeedFactor, 2) );
 
-        if( !isSkid )
-        {
-            m_skid.Stop();
-        }
+        m_LowAccel.volume = volume;
+        m_LowAccel.pitch = pitch;
     }
 
-    public void PlayCollideSound(float factor)
+    //构建音源
+    private AudioSource SetUpEngineAudioSource(AudioClip clip)
     {
-        m_collide.Stop();
-        m_collide.volume = factor;
-        m_collide.Play();
+        //添加audioSource组件并设置clip，loop
+        AudioSource source = gameObject.AddComponent<AudioSource>();
+        source.clip = clip;
+        source.volume = minVolume;
+        source.pitch = minPitch;
+        source.loop = true;
+
+        source.outputAudioMixerGroup = carGroup;
+
+        //选取clip随机时间点开始播放
+        source.time = Random.Range( 0f, clip.length );
+        source.Play();
+        return source;
     }
 }

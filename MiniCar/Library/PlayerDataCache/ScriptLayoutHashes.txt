@@ -24,6 +24,7 @@ ff05dcdf90651c3d98a9cad3df5e471e UnityEngine.Timeline.dll:UnityEngine.Timeline.C
 607d64d2c4bc76ac9876e6f7b9cc7edf UnityEngine.Timeline.dll:UnityEngine.Timeline.TimelineAsset
 b40888e53ca20004e64a68d96bb0d63e Assembly-CSharp.dll:.LevelInfo
 be3c7e1564b3fa2835d2ffd1c2fec012 Assembly-CSharp.dll:.SceneController
+5068bc7e323c614e8e3c4e61f062de7c Assembly-CSharp.dll:.SkidTrail
 a35dc9cca2faebc5f5f1aeb9e8e47bbe UnityEngine.UI.dll:UnityEngine.UI.AspectRatioFitter
 05524b8f659e7bfe5756d1335fec24ba UnityEngine.UI.dll:UnityEngine.EventSystems.BaseInput
 49cd62a578efc0a599b810a2b66cd49c UnityEngine.UI.dll:UnityEngine.UI.Button
@@ -117,7 +118,6 @@ e9bdabf9265d758d56f01bb188916fa8 UnityEngine.Networking.dll:UnityEngine.Networki
 73843688b51256aed059f049c540bca8 UnityEngine.Networking.dll:UnityEngine.Networking.NetworkTransformChild
 528ea1fd7c01796fc60c4e2f172ea229 UnityEngine.Networking.dll:UnityEngine.Networking.NetworkTransformVisualizer
 9de3a22eca9aefadba2d10d5987cefe3 UnityEngine.SpatialTracking.dll:UnityEngine.SpatialTracking.TrackedPoseDriver
-05524b8f659e7bfe5756d1335fec24ba Assembly-CSharp.dll:.AudioManager
 02b1d7d0086a529374716addab7a109a Assembly-CSharp.dll:.LevelInfoList
 322cb40e1e282f28af980cbef7922a90 UnityEngine.Analytics.dll:UnityEngine.Analytics.AnalyticsEventTracker
 dc07d7ad69b399a46e92c483bf1c04ca UnityEngine.Analytics.dll:UnityEngine.Analytics.AnalyticsTracker
@@ -128,10 +128,11 @@ c2275a8bfbb9f9942cad75ecdfded41d UnityEngine.HoloLens.dll:UnityEngine.XR.WSA.Spa
 45f3431f0103c41611e8d4eec3d439df UnityEngine.HoloLens.dll:UnityEngine.XR.WSA.SpatialMappingRenderer
 af5ae1b16c1690e9b4ce7649b1eb03da Assembly-CSharp.dll:.WheelAdjust
 3173c4cf336c8b4d2ac0f2f04fbc748a Assembly-CSharp.dll:.MotorPart
-d18949cf69b7d195498eabdf47a68601 Assembly-CSharp.dll:.CarAudio
+015c3b3fd2b3abce741a577b8235fb04 Assembly-CSharp.dll:.CarAudio
 ba68ea568b9200f0e0fe2ee191bff632 Assembly-CSharp.dll:.LevelHud
 f23fdb3b375707b300dd53e06cdf89c1 Assembly-CSharp.dll:.ChallengeController
 5f4753e41f01e8663f4109e4ac8ac87f Assembly-CSharp.dll:.CoverPart
+bb59fd8412acf8bef3293c536dcb3ddf Assembly-CSharp.dll:.DriveModule
 fc1e0f4d8439d9928083474691511a13 UnityEngine.Networking.dll:UnityEngine.Networking.NetworkAnimator
 05524b8f659e7bfe5756d1335fec24ba UnityEngine.Networking.dll:UnityEngine.Networking.NetworkBehaviour
 60b2bb652410a5867a5ab9a01cd38461 UnityEngine.Networking.dll:UnityEngine.Networking.NetworkDiscovery
@@ -172,4 +173,5 @@ c81fd3da94c908f9856e11ee967a9102 Assembly-CSharp.dll:.InputHandler
 de6dc951c155b82c7caf7b8d60377dee Assembly-CSharp.dll:.LevelManager
 ef276d6aa9f4e9ab2a63629628ee81b8 Assembly-CSharp.dll:.CheckPoint
 2107b1624a41791c2d881a49b9352dca Assembly-CSharp.dll:.AudioController
-20fe55eb6394e1c5c8f7dee2d1a187c8 Assembly-CSharp.dll:.CarController
+98b9d5aeb42260920115d655b70b941b Assembly-CSharp.dll:UnityStandardAssets.Vehicles.Car.WheelEffects
+ec6653aca2b7edb61ecbebeeaaf87fe8 Assembly-CSharp.dll:.CarController

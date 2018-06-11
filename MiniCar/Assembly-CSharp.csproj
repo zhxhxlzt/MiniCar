@@ -62,7 +62,6 @@
     <Compile Include="Assets\Scripts\ButtonSound.cs" />
     <Compile Include="Assets\Scripts\CarAudio.cs" />
     <Compile Include="Assets\Scripts\CheckPoint.cs" />
-    <Compile Include="Assets\Scripts\Class\AudioManager.cs" />
     <Compile Include="Assets\Scripts\Class\LevelInfoAccess.cs" />
     <Compile Include="Assets\Scripts\Controller\AudioController.cs" />
     <Compile Include="Assets\Scripts\Controller\CameraController.cs" />
@@ -74,6 +73,7 @@
     <Compile Include="Assets\Scripts\Controller\LevelManager.cs" />
     <Compile Include="Assets\Scripts\Controller\SceneController.cs" />
     <Compile Include="Assets\Scripts\LevelSlot.cs" />
+    <Compile Include="Assets\Scripts\Modules\DriveModule.cs" />
     <Compile Include="Assets\Scripts\Scriptable\CoverPart.cs" />
     <Compile Include="Assets\Scripts\Scriptable\LevelInfo.cs" />
     <Compile Include="Assets\Scripts\Scriptable\LevelInfoList.cs" />
@@ -81,8 +81,10 @@
     <Compile Include="Assets\Scripts\Scriptable\UserCarParts.cs" />
     <Compile Include="Assets\Scripts\Scriptable\UserData.cs" />
     <Compile Include="Assets\Scripts\Scriptable\WheelPart.cs" />
+    <Compile Include="Assets\Scripts\SkidTrail.cs" />
     <Compile Include="Assets\Scripts\Test\WheelAdjust.cs" />
     <Compile Include="Assets\Scripts\Test\WheelColliderAdjust.cs" />
+    <Compile Include="Assets\Scripts\WheelEffects.cs" />
     <Compile Include="Assets\UISwitchPauseIcon.cs" />
     <Reference Include="UnityEditor.StandardEvents">
       <HintPath>E:/GitHub/MiniCar/MiniCar/Library/ScriptAssemblies/UnityEditor.StandardEvents.dll</HintPath>

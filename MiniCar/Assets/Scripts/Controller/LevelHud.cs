@@ -99,7 +99,7 @@ public class LevelHud : MonoBehaviour {
     public void SetWrongDirection(int times)
     {
         SetAlertLabel( "方向错误！" );
-        StopCoroutine("BlinkResult");
+        StopCoroutine( BlinkResult( 3 ) );
         StartCoroutine( BlinkResult( times ) );
     }
 
@@ -145,9 +145,9 @@ public class LevelHud : MonoBehaviour {
     {
         for ( int i = 0; i < times; i++ )
         {
-            ResultLabel.enabled = true;
+            AlertLabel.enabled = true;
             yield return new WaitForSeconds( 0.5f );    //每隔0.5秒闪烁一次
-            ResultLabel.enabled = false;
+            AlertLabel.enabled = false;
             yield return new WaitForSeconds( 0.5f );
         }
     }
