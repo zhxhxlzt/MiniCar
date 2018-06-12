@@ -8,7 +8,7 @@ using UnityEngine.EventSystems;
  * */
 public class InputHandler : MonoBehaviour {
 
-    public bool handleCarInput = true;   //是否处理移动输入
+    public bool handleCarInput = true;    //是否处理移动输入
     public bool handleUIInput = true;     //是否处理UI输入
 
     [Header("=== 赛车数据 ===")]
@@ -19,12 +19,12 @@ public class InputHandler : MonoBehaviour {
     [Header( "=== UI数据 ===" )]
     [SerializeField] private bool escape = false;   //取消命令
 
-
     //外部获取移动参数
     public float Accel { get { return accel; } }
     public float Steer { get { return steer; } }
     public float Brake { get { return brake; } }
 
+    //返回按键
     public bool Escape
     {
         get
@@ -37,10 +37,12 @@ public class InputHandler : MonoBehaviour {
         }
     }
     
+    //更新方法
     private void Update()
     {
         HandleMoveInput();
     }
+
     //处理输入
     private void HandleMoveInput()
     {

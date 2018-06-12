@@ -59,11 +59,15 @@ public class ChallengeController : MonoBehaviour {
         StartCoroutine( CheckChallengeState() );        //开始协程检测玩家闯关状态
     }
 
+    private void OnDestroy()
+    {
+        Time.timeScale = 1; //重置时间缩放
+    }
+
     private void FixedUpdate()
     {
         CountTurn();                //检查圈数
         CountTimeUsage();           //计时
-        //Debug.Log( "场景名为：" + m_sceneController.CurrentSceneName );
     }
 
     //暂停开关

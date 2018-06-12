@@ -62,13 +62,13 @@ public class CameraController : MonoBehaviour {
     //旋转
     private void Rotate()
     {
-        transform.forward = Vector3.Slerp( transform.forward, FigureHorTargetForward(), rotSpeed );
+        transform.forward = Vector3.Slerp( transform.forward, FigureTargetForward(), rotSpeed );
     }
     
-    private Vector3 FigureHorTargetForward()
+    private Vector3 FigureTargetForward()
     {
-        Vector3 horVelocity = m_carRig.velocity; //new Vector3( m_carRig.velocity.x, 0, m_carRig.velocity.z );   //赛车水平速度
-        Vector3 horCarForward = m_follow.forward;//new Vector3( m_follow.forward.x, 0, m_follow.forward.z );   //赛车水平朝向
+        Vector3 horVelocity = m_carRig.velocity; //赛车速度
+        Vector3 horCarForward = m_follow.forward;//赛车朝向
 
         if (horVelocity.magnitude == 0 || Vector3.SignedAngle(m_carRig.velocity, m_follow.forward, Vector3.up) < 5f)
         {

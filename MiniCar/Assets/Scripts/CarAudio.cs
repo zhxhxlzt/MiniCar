@@ -36,9 +36,10 @@ public class CarAudio : MonoBehaviour {
 
     private void Start()
     {
-        m_carcontroller.OnCollid += PlayCollideSound;
-        StartSound();
+        StartSound();   //建立音源
+        m_carcontroller.OnCollid += PlayCollideSound;   //订阅碰撞事件
     }
+
     //根据音效种类构建audio source
     private void StartSound()
     {
@@ -49,6 +50,7 @@ public class CarAudio : MonoBehaviour {
         m_LowAccel = SetUpEngineAudioSource( lowAccelClip );
         
     }
+
     private void Update()
     {
         
