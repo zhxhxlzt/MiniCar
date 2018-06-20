@@ -59,21 +59,25 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Scripts\ButtonSound.cs" />
-    <Compile Include="Assets\Scripts\CarAudio.cs" />
-    <Compile Include="Assets\Scripts\CheckPoint.cs" />
-    <Compile Include="Assets\Scripts\Class\LevelInfoAccess.cs" />
+    <Compile Include="Assets\Scenes\Test\UIStorageTest.cs" />
+    <Compile Include="Assets\Scripts\Component\ButtonSound.cs" />
+    <Compile Include="Assets\Scripts\Component\CarAudio.cs" />
+    <Compile Include="Assets\Scripts\Component\CheckPoint.cs" />
+    <Compile Include="Assets\Scripts\Component\LevelSlot.cs" />
+    <Compile Include="Assets\Scripts\Component\SkidTrail.cs" />
+    <Compile Include="Assets\Scripts\Component\UISwitchPauseIcon.cs" />
+    <Compile Include="Assets\Scripts\Component\UserDataManager.cs" />
+    <Compile Include="Assets\Scripts\Component\WheelEffects.cs" />
     <Compile Include="Assets\Scripts\Controller\AudioController.cs" />
     <Compile Include="Assets\Scripts\Controller\CameraController.cs" />
     <Compile Include="Assets\Scripts\Controller\CarController.cs" />
     <Compile Include="Assets\Scripts\Controller\ChallengeController.cs" />
     <Compile Include="Assets\Scripts\Controller\CheckPointController.cs" />
+    <Compile Include="Assets\Scripts\Controller\Director.cs" />
     <Compile Include="Assets\Scripts\Controller\InputHandler.cs" />
     <Compile Include="Assets\Scripts\Controller\LevelHud.cs" />
     <Compile Include="Assets\Scripts\Controller\LevelManager.cs" />
-    <Compile Include="Assets\Scripts\Controller\SceneController.cs" />
-    <Compile Include="Assets\Scripts\LevelSlot.cs" />
-    <Compile Include="Assets\Scripts\Modules\DriveModule.cs" />
+    <Compile Include="Assets\Scripts\Controller\UIController.cs" />
     <Compile Include="Assets\Scripts\Scriptable\CoverPart.cs" />
     <Compile Include="Assets\Scripts\Scriptable\LevelInfo.cs" />
     <Compile Include="Assets\Scripts\Scriptable\LevelInfoList.cs" />
@@ -81,11 +85,8 @@
     <Compile Include="Assets\Scripts\Scriptable\UserCarParts.cs" />
     <Compile Include="Assets\Scripts\Scriptable\UserData.cs" />
     <Compile Include="Assets\Scripts\Scriptable\WheelPart.cs" />
-    <Compile Include="Assets\Scripts\SkidTrail.cs" />
     <Compile Include="Assets\Scripts\Test\WheelAdjust.cs" />
     <Compile Include="Assets\Scripts\Test\WheelColliderAdjust.cs" />
-    <Compile Include="Assets\Scripts\WheelEffects.cs" />
-    <Compile Include="Assets\UISwitchPauseIcon.cs" />
     <Reference Include="UnityEditor.StandardEvents">
       <HintPath>E:/GitHub/MiniCar/MiniCar/Library/ScriptAssemblies/UnityEditor.StandardEvents.dll</HintPath>
     </Reference>

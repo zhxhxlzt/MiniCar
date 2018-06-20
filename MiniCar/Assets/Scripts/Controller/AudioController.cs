@@ -5,27 +5,40 @@ using UnityEngine.Audio;
 
 public class AudioController : MonoBehaviour {
 
-    [SerializeField] private AudioMixerSnapshot mute, unMute, finish;
-    private bool m_muted = false;
+    [SerializeField] private AudioMixerSnapshot mute, unMute, finish;   //snapshot,用于声音控制
 
+    private ChallengeController m_challengeController;  //闯关控制器
+    
     private void Start()
     {
-        m_muted = false;
         unMute.TransitionTo( 0f );
+
+        m_challengeController = ChallengeController.Instance;
+
+        if( m_challengeController != null )
+        {
+            //订阅闯关控制器事件
+            m_challengeController.OnChallengeSucceed += FinishSnapShot;
+            m_challengeController.OnChallengeFailed += FinishSnapShot;
+            m_challengeController.OnChallengePaused += Mute;
+            m_challengeController.OnChallengeStart += UnMute;
+        }
+        
     }
 
-    public void MuteSwitch()
+    //静音
+    public void Mute()
     {
-        if( m_muted = !m_muted)
-        {
-            mute.TransitionTo( 0 );
-        }
-        else
-        {
-            unMute.TransitionTo( 0 );
-        }
+        mute.TransitionTo( 0 );
     }
 
+    //关闭静音
+    public void UnMute()
+    {
+        unMute.TransitionTo( 0 );
+    }
+
+    //完成时的音效
     public void FinishSnapShot()
     {
         finish.TransitionTo( 1f );

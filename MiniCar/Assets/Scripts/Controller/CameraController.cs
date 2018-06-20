@@ -28,7 +28,7 @@ public class CameraController : MonoBehaviour {
         m_lookAt = m_carRig.transform.Find( "CameraHelp" ).Find( "LookAtPoint" );
     }
 
-    //物理循环
+    //相机跟随所处循环与赛车一致
     private void FixedUpdate()
     {
         AdjustCameraOffset();
@@ -65,6 +65,7 @@ public class CameraController : MonoBehaviour {
         transform.forward = Vector3.Slerp( transform.forward, FigureTargetForward(), rotSpeed );
     }
     
+    //计算目标指向
     private Vector3 FigureTargetForward()
     {
         Vector3 horVelocity = m_carRig.velocity; //赛车速度

@@ -20,7 +20,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4494780379857276}
   - component: {fileID: 114918312197605434}
-  - component: {fileID: 114385590280082214}
   - component: {fileID: 114512220459045708}
   - component: {fileID: 114956374397067764}
   - component: {fileID: 114776028640898600}
@@ -44,18 +43,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &114385590280082214
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1113645948891240}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dfe00a61ca5feaa4d83edca1d15a7c6f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  userData: {fileID: 11400000, guid: 4d80658c38591134ca0b2567e97ba80c, type: 2}
 --- !u!114 &114512220459045708
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -67,17 +54,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa395fe71d8df6148911ce129dc350e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_timeLimit: 60
+  m_timeLimit: 80
   m_timeCount: 0
   m_countDown: 5
   m_turnLimit: 2
   m_turnCount: 0
   m_challengeState: 0
-  m_inputHandler: {fileID: 114918312197605434}
-  m_sceneController: {fileID: 114385590280082214}
-  m_levelHud: {fileID: 0}
-  m_levelInfoList: {fileID: 11400000, guid: 611384128bec17c468ed6622fb27a607, type: 2}
-  m_audioController: {fileID: 114956374397067764}
+  m_startPoint: {fileID: 0}
+  m_levelInfoList: {fileID: 0}
 --- !u!114 &114776028640898600
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -89,9 +73,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58c6aa673a1055b40b807b11080fa9aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_carCtrl: {fileID: 0}
-  m_challengeCtrl: {fileID: 114512220459045708}
-  m_inputHandler: {fileID: 114918312197605434}
   SystemMenu: {fileID: 0}
   CountDownLabel: {fileID: 0}
   TimeCountLabel: {fileID: 0}
@@ -100,6 +81,8 @@ MonoBehaviour:
   ResultLabel: {fileID: 0}
   AlertLabel: {fileID: 0}
   MenuButton: {fileID: 0}
+  RestartButton: {fileID: 0}
+  ReturnButton: {fileID: 0}
   m_showMenu: 0
 --- !u!114 &114918312197605434
 MonoBehaviour:
@@ -112,12 +95,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 289cf6bcc60d65e458e28aa2ed6594ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  handleCarInput: 1
-  handleUIInput: 1
-  accel: 0
-  steer: 0
-  brake: 0
-  escape: 0
+  m_accel: 0
+  m_steer: 0
+  m_brake: 0
+  m_escape: 0
 --- !u!114 &114956374397067764
 MonoBehaviour:
   m_ObjectHideFlags: 1

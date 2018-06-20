@@ -5,15 +5,9 @@ using UnityEngine.UI;
 using System;
 
 public class LevelHud : MonoBehaviour {
-
-    [Header( "=== 外部控制器 ===" )]
-    [SerializeField] private CarController m_carCtrl;               //赛车控制器
-    [SerializeField] private ChallengeController m_challengeCtrl;   //闯关控制器
-    [SerializeField] private InputHandler m_inputHandler;           //输入控制器
     
-
     [Header( "=== UI组件 ===" )]
-    [SerializeField] private CanvasGroup SystemMenu;   //暂停菜单
+    [SerializeField] private CanvasGroup SystemMenu; //暂停菜单
     [SerializeField] private Text CountDownLabel;    //倒计时Text
     [SerializeField] private Text TimeCountLabel;    //计时Text
     [SerializeField] private Text TurnCountLabel;    //计圈Text
@@ -21,21 +15,30 @@ public class LevelHud : MonoBehaviour {
     [SerializeField] private Text ResultLabel;       //结果Text
     [SerializeField] private Text AlertLabel;        //警告Text
     [SerializeField] private Button MenuButton;      //菜单button
+    [SerializeField] private Button RestartButton;   //重新开始
+    [SerializeField] private Button ReturnButton;    //返回
 
     [Header( "=== 控制参数 ===" )]
     [SerializeField] private bool m_showMenu;
 
     private void Start()
     {
-        m_carCtrl = FindObjectOfType<CarController>();
-        m_challengeCtrl = FindObjectOfType<ChallengeController>();
-        m_inputHandler = FindObjectOfType<InputHandler>();
         FindHUD();
+        SetTimeCountLabel();    //设置初始计时
+        SetTurnCountLabel();    //设置初始圈数
+
+        InputHandler.Instance.OnEscape += ShowMenu;                             //订阅用户输入事件
+        ChallengeController.Instance.OnTurnFinished += SetTurnCountLabel;       //完成一圈时，设置圈数label
+        ChallengeController.Instance.OnTimeCountChanged += SetTimeCountLabel;   //当计时进行时，设置时间
+        SubscribeChallenge();                                                   //订阅闯关事件
+        RestartButton.onClick.AddListener( OnRestartButtonClick );              //为重新开始按钮添加监听方法
+        ReturnButton.onClick.AddListener( OnReturnButtonClick );                //为返回按钮添加监听方法
+        MenuButton.onClick.AddListener( ShowMenu );                             //为菜单按钮添加监听方法
     }
 
     private void Update()
     {
-        ShowHUD();
+        SetSpeedLabel();
     }
 
     //查找UI组件
@@ -49,21 +52,14 @@ public class LevelHud : MonoBehaviour {
         ResultLabel = FindUIComponent<Text>( "Result" );
         AlertLabel = FindUIComponent<Text>( "Alert" );
         MenuButton = FindUIComponent<Button>( "MenuButton" );
+        RestartButton = FindUIComponent<Button>( "Restart" );
+        ReturnButton = FindUIComponent<Button>( "Return" );
     }
 
     //查找UI组件
     private T FindUIComponent<T>(string name)
     {
         return GameObject.Find( name ).GetComponent<T>();
-    }
-
-    //显示闯关HUD
-    private void ShowHUD()
-    {
-        SetTurnCountLabel();
-        SetTimeCountLabel();
-        SetSpeedLabel();
-        SetMenu();
     }
 
     public void ShowMenu()
@@ -104,8 +100,9 @@ public class LevelHud : MonoBehaviour {
     }
 
     //设置倒计时
-    public void SetCountDown(int time)
+    public void SetCountDown()
     {
+        int time = ChallengeController.Instance.CountDown;
         if( CountDownLabel == null)
         {
             CountDownLabel = FindUIComponent<Text>( "CountDown" );
@@ -114,30 +111,42 @@ public class LevelHud : MonoBehaviour {
         StartCoroutine( BeignCountDown( time ) );
     }
 
-    private void SetMenu()
+    public void SetSuccess()
     {
-        if( m_inputHandler.Escape == true )
-        {
-            MenuButton.onClick.Invoke();
-        }
+        ResultLabel.text = "闯关成功！";
+    }
+
+    public void SetFailure()
+    {
+        ResultLabel.text = "闯关失败！";
     }
 
     //设置圈数UI
-    private void SetTurnCountLabel()
+    public void SetTurnCountLabel()
     {
-        TurnCountLabel.text = "已完成：" + m_challengeCtrl.TurnCount.ToString() + "/" + m_challengeCtrl.TurnLimit.ToString() + "圈";
+        TurnCountLabel.text = "已完成：" + 
+                              ChallengeController.Instance.TurnCount.ToString() + 
+                              "/" + 
+                              ChallengeController.Instance.TurnLimit.ToString() + 
+                              "圈";
     }
 
     //设置用时UI
-    private void SetTimeCountLabel()
+    public void SetTimeCountLabel()
     {
-        TimeCountLabel.text = "耗时：" + Convert.ToInt32( m_challengeCtrl.TimeCount ).ToString() + "秒/" + m_challengeCtrl.TimeLimit.ToString() + "秒";
+        TimeCountLabel.text = "耗时：" + 
+                              Convert.ToInt32( ChallengeController.Instance.TimeCount ).ToString() + 
+                              "秒/" + 
+                              ChallengeController.Instance.TimeLimit.ToString() + 
+                              "秒";
     }
 
     //设置速度UI
     private void SetSpeedLabel()
     {
-        SpeedLabel.text = "当前速度：" + Convert.ToInt32( m_carCtrl.Velocity.magnitude * 3.6f).ToString() + "km/h" ;
+        SpeedLabel.text = "当前速度：" + 
+                          Convert.ToInt32( CarController.Instance.Velocity.magnitude * 3.6f ).ToString() + 
+                          "km/h" ;
     }
 
     //闪烁UI组件
@@ -170,5 +179,22 @@ public class LevelHud : MonoBehaviour {
         yield return new WaitForSeconds( 1f );
 
         CountDownLabel.enabled = false;
+    }
+
+    private void SubscribeChallenge()
+    {
+        ChallengeController.Instance.OnChallengePrepare += SetCountDown;
+        ChallengeController.Instance.OnChallengeSucceed += SetSuccess;
+        ChallengeController.Instance.OnChallengeFailed += SetFailure;
+    }
+
+    private void OnReturnButtonClick()
+    {
+        Director.Instance.LoadScene( "MainScene" );
+    }
+
+    private void OnRestartButtonClick()
+    {
+        Director.Instance.LoadScene( Director.Instance.CurrentSceneName );
     }
 }

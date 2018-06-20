@@ -16,7 +16,6 @@ public class UserData : ScriptableObject {
     public void Reset()
     {
         //重设关卡信息
-        levelInfoList.ResetLevelInfo();
         
         //重设赛车零件配置
         currentCar.Reset();
