@@ -17,5 +17,5 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 678c3451d212bb24182e83f1015c7fd9, type: 2}
   wheelList:
   - {fileID: 11400000, guid: ae723bcbe2a72fe4eaa44675998e6c72, type: 2}
-  levelInfoList: {fileID: 11400000, guid: 611384128bec17c468ed6622fb27a607, type: 2}
   currentCar: {fileID: 11400000, guid: 577c3d4171ea97b4f833d6a488f54a13, type: 2}
+  levelInfoList: {fileID: 11400000, guid: cd4b233879cc7b1439e86d368d1ffc94, type: 2}

@@ -11,5 +11,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 473174560564051418ce6538167e6bc9, type: 3}
   m_Name: DefaultMotor
   m_EditorClassIdentifier: 
-  rpm: 1500
-  motorTorque: 1000
+  rpm: 800
+  motorTorque: 800

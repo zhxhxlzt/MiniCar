@@ -2,90 +2,89 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.IO;
+
+public enum LevelStateEnum { locked, unlocked, passed }
 
 [CreateAssetMenu(fileName = "LevelInfo", menuName = "Level/Info")]
 [Serializable]
 public class LevelInfo : ScriptableObject {
 
-    [SerializeField] private bool m_passed;     //当前关卡是否已通过
-    [SerializeField] private bool m_locked;     //当前关卡是否已解锁
-    [SerializeField] private bool m_isBegin;   //当前关卡是否为开始关卡
-    [SerializeField] private bool m_isEnd;    //当前关卡是否为最终关卡
-    [SerializeField] private float m_timeUsage; //当前关卡通关时间
-
-    [SerializeField] private List<LevelInfo> m_next;    //子关卡
-
-    public bool Passed { get { return m_passed; } set { m_passed = value; } }
-    public bool Locked { get { return m_locked; } set { m_locked = value; } }
-    public bool IsBegin { get { return m_isBegin; } set { m_isBegin = value; } }
-    public bool IsEnd { get { return m_isEnd; } set { m_isEnd = value; } }
-    public float TimeUsage { get { return m_timeUsage; } set { m_timeUsage = value; } }
-
-    //设置子关卡
-    public void SetNext( List<LevelInfo> next )
-    {
-        if ( m_next.Equals( next ) )
-        {
-            return;
-        }
-        
-        m_next = next;
-    }
+    [SerializeField] private int      m_levelIndex;                  //关卡序号
+    [SerializeField] private string   m_levelName;                   //关卡名
+    [SerializeField] private float    m_passTimeLimit;               //通关时间限制
+    [SerializeField] private float    m_passTimeUsage;               //通关用时
+    [SerializeField] private int      m_passTurnLimit;               //通关圈数限制
+    [SerializeField] private LevelStateEnum m_levelState;              //通关状态
     
-    //设置闯关用时
-    public void SetTimeUsage(float time)
+    //从磁盘载入
+    public void LoadLevelData()
     {
-        if( Passed )
+        string jss = File.ReadAllText(Application.streamingAssetsPath + "/" + LevelName +  ".json");
+
+        if( jss == null ) { return; }
+
+        JsonUtility.FromJsonOverwrite( jss, this );
+    }
+
+    //解锁
+    public void UnLock()
+    {
+        if( LevelState == LevelStateEnum.locked )
         {
-            if( m_timeUsage == 0)
-            {
-                m_timeUsage = time;
-            }
-            else
-            {
-                m_timeUsage = Mathf.Min( m_timeUsage, time );
-            }
+            m_levelState = LevelStateEnum.unlocked;
         }
     }
 
-    //解锁子关卡
-    public void UnlockNext()
+    public void SetPass()
     {
-        if ( m_next.Count != 0 )
+        if( LevelState == LevelStateEnum.unlocked )
         {
-            foreach ( var item in m_next )
-            {
-                item.m_locked = false;
-            }
+            m_levelState = LevelStateEnum.passed;
         }
     }
 
-    //获取数据
-    public void CopyFrom( LevelInfoAccess data)
+    //公有数据获取方法
+    public int LevelIndex { get { return m_levelIndex; } }
+    public string LevelName { get { return m_levelName; } }
+    public float PassTimeLimit { get { return m_passTimeLimit; } }
+    public float TimeUsage
     {
-        Debug.Log( "读取一次" );
-        m_passed = data.m_passed;
-        m_locked = data.m_locked;
-        m_isBegin = data.m_isBegin;
-        m_isEnd = data.m_isEnd;
-        m_timeUsage = data.m_timeUsage;
+        get
+        {
+            return m_passTimeUsage;
+        }
+        set
+        {
+            if( m_passTimeUsage == 0 ) { m_passTimeUsage = value; } else
+            {
+                if( m_passTimeUsage > value ) { m_passTimeUsage = value; }
+            }
+        }
+    }
+    public int PassTurnLimit { get { return m_passTurnLimit; } }
+    public LevelStateEnum LevelState { get { return m_levelState; } }
+
+    //保存到磁盘
+    public void SaveLevelData()
+    {
+        string jss = JsonUtility.ToJson(this);
+        File.WriteAllText( Application.streamingAssetsPath + "/" + LevelName + ".json", jss );
     }
 
-    //设置数据
-    public void CopyTo( ref LevelInfoAccess data )
-    {
-        data.m_passed = m_passed;
-        data.m_locked = m_locked;
-        data.m_isBegin = m_isBegin;
-        data.m_isEnd = m_isEnd;
-        data.m_timeUsage = m_timeUsage;
-    }
-
-    //重置关卡
+    //重置，如果是开始点，则解锁
     public void Reset()
     {
-        m_passed = false;
-        m_locked = m_isBegin ? false : true;
-        m_timeUsage = 0f;
+        if( LevelIndex == 1 )
+        {
+            m_levelState = LevelStateEnum.unlocked;
+        }
+        else
+        {
+            m_levelState = LevelStateEnum.locked;
+        }
+
+        m_passTimeUsage = 0f;
     }
 }
+

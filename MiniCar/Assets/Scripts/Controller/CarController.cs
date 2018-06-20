@@ -1,23 +1,44 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using System;
 
+public enum CarState { forward, backward, idle };
+
 public class CarController : MonoBehaviour {
+    
+    //单例
+    public static CarController Instance { get; private set; }
 
-    public enum CarState { forward, backward, idle };
+    //检查单例
+    private void Awake()
+    {
+        if ( Instance == null ) { Instance = this; } else
+        {
+            Destroy( this );
+        }
+    }
 
-    public delegate void Collid(float factor);
+    //初始化
+    private void Start()
+    {
+        m_rigidbody = GetComponent<Rigidbody>();                    //获取刚体
+        m_centorOfMass = transform.Find( "CenterOfMass" );          //获取重心
+        m_rigidbody.centerOfMass = m_centorOfMass.position;         //设置重心
+        m_parts = Resources.Load<UserData>( "UserDatum/UserData" ).currentCar;  //零件资源加载
+        AdjustCarAttribute();                                       //初始化赛车属性
+        m_wheelColliders[0].ConfigureVehicleSubsteps( 5, 10, 5 );   //应用车轮碰撞器迭代步数
 
-    public event Collid OnCollid;       //发送碰撞事件
+        InputHandler.Instance.OnDriveInputChange += Drive;          //订阅赛车驾驶输入
+    }
 
-    [Header( "=== 外部控制器 ===" )]
-    [SerializeField] private InputHandler m_input;    //输入控制器
-    [SerializeField] private UserCarParts m_parts;    //当前赛车配置
-    [SerializeField] private Rigidbody m_rigidbody;   //赛车刚体RigidBody
+    public event Action<float> OnCollid;                    //发送碰撞事件
+
+    [Header( "=== 外部组件 ===" )]
+    [SerializeField] private UserCarParts m_parts;          //当前赛车配置
+    [SerializeField] private Rigidbody m_rigidbody;         //赛车刚体RigidBody
+    [SerializeField] private Transform m_centorOfMass;      //重心
 
     [Header( "=== 车轮模型 ===" )]
-    [SerializeField] private GameObject[] m_wheelModels;
+    [SerializeField] private Transform[] m_wheelModels;
 
     [Header( "=== 车轮碰撞器 ===" )]
     [SerializeField] private WheelCollider[] m_wheelColliders;
@@ -31,23 +52,22 @@ public class CarController : MonoBehaviour {
     [SerializeField] private float m_wheelFriction;         //车轮摩擦力
     [SerializeField] private float m_airDrag;               //空气阻力
     [SerializeField] private float m_downForce;             //下压力
-    [SerializeField] private GameObject m_centorOfMass;     //重心
+    
     [SerializeField] private int m_maxGear = 5;             //最高档位
     [SerializeField] private int m_curGear = 0;             //初始为0
     [SerializeField] private float m_gearFactor;            //档位因数
     [SerializeField] private float m_curTorque;             //当前档位
 
-    [Header( "=== 赛车状态 ===" )]
-    [SerializeField] [Range( 0, 1 )] private float m_slipLimit = 0.8f;              //侧滑判定上限
+    [Header( "=== 赛车调试 ===" )]
+    [SerializeField] [Range( 0, 1 )] private float m_slipLimit = 0.8f;                      //侧滑判定上限
     [SerializeField] [Range( 1000, 10000 )] private float m_collisionImpulseLimit = 1500f;  //产生碰撞音效的力大小限定
     [SerializeField] [Range( 0, 1 )] private float m_steerHelper = 0.25f;                   //转向帮助
-    [SerializeField] [Range( 0, 0.1f )] private float m_rotateHelper = 0.05f;               //漂移帮助
-    [SerializeField] [Range( 0, 20 )] private float m_conerSpeed = 10;                      //过弯速度判定
+    [SerializeField] [Range( 0, 0.1f )] private float m_shiftHelper = 0.05f;               //漂移帮助
 
     [Header("=== 用作函数静态变量 ===")]
-    [SerializeField] private float m_OldRotation;           //记录赛车旋转角
+    [SerializeField] private float t_OldRotation;           //记录赛车旋转角
     [SerializeField] private Vector3 t_preFrameVelocity;    //上一帧速度
-   
+    
     //赛车最大速度
     public float MaxSpeed { get { return m_maxSpeed; } }
 
@@ -124,26 +144,6 @@ public class CarController : MonoBehaviour {
         }
     }
     
-    //初始化
-    private void Start()
-    {
-        m_rigidbody = GetComponent<Rigidbody>();     //获取刚体
-        m_input = GameObject.FindGameObjectWithTag( "GameController" ).GetComponent<InputHandler>(); //获取输入组件
-        m_parts = Resources.Load<UserData>( "UserDatum/UserData" ).currentCar;
-
-        AdjustCarAttribute();     //初始化赛车属性
-        m_wheelColliders[0].ConfigureVehicleSubsteps( 5, 10, 5 );  //应用车轮碰撞器迭代步数
-    }
-
-    //物理循环
-    private void FixedUpdate()
-    {
-        AdjustCarAttribute();   //调整赛车属性
-        AdjustForce();          //赛车受力调整
-        CalCurGear();           //计算当前档位
-        DriveControl();         //驾驶控制
-    }
-    
     //根据赛车各零件调整赛车属性
     private void AdjustCarAttribute()
     {
@@ -156,7 +156,7 @@ public class CarController : MonoBehaviour {
                 return;
             }
         }
-
+        
         m_rigidbody.centerOfMass = m_centorOfMass.transform.localPosition;   //设置赛车重心
         
         //motor零件属性
@@ -251,26 +251,28 @@ public class CarController : MonoBehaviour {
     }
 
     //驾驶控制
-    private void DriveControl()
+    public void Drive( float accel, float steer, float brake )
     {
-        //各车轮动力扭矩,超过最高速度则为0
-        float targetMotorTorque = m_input.Accel * m_maxMotorTorque * Mathf.Clamp01( m_maxGear - m_curGear * 0.5f );
         
-        float brakeTorque = m_input.Brake * m_maxBrakeTorque;   //各车轮制动扭矩
-        float steerAngle = m_maxSteer * m_input.Steer * Mathf.Clamp01(1 - SpeedFactor * 0.25f);   //转向角
+        //各车轮动力扭矩,超过最高速度则为0
+        float motorTorque = accel * m_maxMotorTorque * Mathf.Clamp01( m_maxGear - m_curGear * 0.5f );
+        
+        float brakeTorque = brake * m_maxBrakeTorque;   //各车轮制动扭矩
+        float steerAngle = m_maxSteer * steer * Mathf.Clamp01(1 - SpeedFactor * 0.25f);   //转向角
 
-        if ( targetMotorTorque == 0 || 
-            (GetCarState() == CarState.forward && targetMotorTorque < 0) || 
-            GetCarState() == CarState.backward && targetMotorTorque > 0 )  
+        //当赛车没有动力时，自动进行减速
+        if ( motorTorque == 0 || 
+            (GetCarState() == CarState.forward && motorTorque < 0) || 
+            GetCarState() == CarState.backward && motorTorque > 0 )  
         {
             brakeTorque += m_maxBrakeTorque * 0.15f;
-            targetMotorTorque = 0;
+            motorTorque = 0;
         }
 
         //四轮动力
         for ( int i = 0; i < 4; i++ )
         {
-            m_wheelColliders[i].motorTorque = targetMotorTorque / 4; 
+            m_wheelColliders[i].motorTorque = motorTorque / 4; 
         }
 
         //四轮刹车
@@ -287,30 +289,32 @@ public class CarController : MonoBehaviour {
 
         CalAccel();                  //计算加速度
         CapMaxSpeed();               //超速锁定
-        SteerHelper();               //转向帮助
+        SteerHelper( steer );        //转向帮助
         SyncWheelMeshes();           //同步车轮模型与碰撞器
+        AdjustCarAttribute();        //调整赛车属性
+        AdjustForce();               //赛车受力调整
+        CalCurGear();                //计算当前档位
     }
 
     //转向帮助
-    private void SteerHelper()
+    private void SteerHelper( float steer )
     {
         if( !OnGround ) { return; }
 
-        if( Velocity.magnitude < m_conerSpeed )
-        {
-            m_rigidbody.AddTorque( Vector3.up * m_rotateHelper * m_input.Steer, ForceMode.VelocityChange );
-        }
-        
+        //Vector3 BackAxisCenter = ( m_wheelColliders[2].transform.position + m_wheelColliders[3].transform.position ) * 0.5f;
+        //Vector3 BackAxisForce = transform.right * steer * m_shiftHelper * Velocity.magnitude;
 
+        //m_rigidbody.AddForceAtPosition( BackAxisCenter, BackAxisForce, ForceMode.VelocityChange );
+        
         //通过修改速度方向来提升转向灵敏度
-        if ( Mathf.Abs( m_OldRotation - transform.eulerAngles.y ) < 10f )
+        if ( Mathf.Abs( t_OldRotation - transform.eulerAngles.y ) < 10f )
         {
-            var turnAdjust = (transform.eulerAngles.y - m_OldRotation) * m_steerHelper;
+            var turnAdjust = (transform.eulerAngles.y - t_OldRotation) * m_steerHelper;
             Quaternion velRotation = Quaternion.AngleAxis( turnAdjust, Vector3.up );
             m_rigidbody.velocity = velRotation * m_rigidbody.velocity;
         }
 
-        m_OldRotation = transform.eulerAngles.y;
+        t_OldRotation = transform.eulerAngles.y;
     }
 
     //检查是否有车轮侧滑
